@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong小游戏</title>
+    <style>
+        /* 继承主页面的可爱风格 */
+        body {
+            font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #fdf3f8; /* 柔和的粉色背景 */
+            background-image: url('https://www.transparenttextures.com/patterns/light-honeycomb.png');
+            color: #555;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative; /* 用于定位帮助按钮 */
+        }
+        h1 {
+            color: #ff69b4; /* 可爱的热粉色标题 */
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        /* 返回游戏中心按钮的样式 */
+        .back-button {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            background-color: #98fb98; /* 浅绿色按钮 */
+            color: #333;
+            border: none;
+            border-radius: 15px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 15px rgba(152, 251, 152, 0.3);
+            margin-top: 30px; /* 与游戏区域保持距离 */
+        }
+        .back-button:hover {
+            background-color: #66cd66;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 205, 102, 0.4);
+        }
+        .back-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(102, 90, 205, 0.3);
+        }
+
+        /* Pong游戏容器样式 */
+        #pong-container {
+            background-color: #ffffff;
+            border-radius: 25px;
+            box-shadow: 0 15px 30px rgba(255, 192, 203, 0.3);
+            padding: 30px;
+            text-align: center;
+            max-width: 500px; /* 适应游戏板大小 */
+            width: 90%;
+            margin-bottom: 20px;
+            border: 2px solid #ffe4e1;
+            position: relative; /* 用于定位帮助按钮 */
+        }
+
+        /* 游戏分数显示 */
+        #score-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ff69b4; /* 可爱的粉色 */
+            margin-bottom: 15px;
+            background-color: #fff0f5;
+            padding: 10px 15px;
+            border-radius: 12px;
+            border: 1px solid #ffebf0;
+        }
+
+        /* Canvas 样式 */
+        #gameCanvas {
+            background-color: #000000; /* 黑色背景 */
+            border: 2px solid #ccc;
+            margin: 20px auto;
+            display: block; /* 移除 canvas 默认的 inline 间距 */
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.1); /* 内部阴影 */
+            border-radius: 5px;
+            max-width: 100%; /* 确保在小屏幕上不会溢出 */
+            height: auto; /* 高度自适应 */
+        }
+
+        /* 游戏消息样式 */
+        #game-message {
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #ff69b4;
+            min-height: 1.5em; /* 确保消息区域高度稳定 */
+        }
+        .message-win { color: #008000; } /* 胜利消息绿色 */
+        .message-lose { color: #ff0000; } /* 失败消息红色 */
+
+        /* 开始/重新开始按钮样式 */
+        #startButton {
+            margin-top: 20px;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            background-color: #87ceeb; /* 天蓝色 */
+            color: white;
+            border: none;
+            border-radius: 15px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 15px rgba(135, 206, 235, 0.3);
+        }
+        #startButton:hover {
+            background-color: #6a5acd;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(106, 90, 205, 0.4);
+        }
+        #startButton:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(106, 90, 205, 0.3);
+        }
+
+        /* 帮助按钮样式 (与扫雷页面相同) */
+        #helpButton {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ffebcd; /* 杏仁色 */
+            color: #d2691e; /* 巧克力色 */
+            border: 2px solid #deb887; /* 沙棕色 */
+            font-size: 1.8em;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.2s, transform 0.2s;
+            z-index: 10; /* 确保在其他元素之上 */
+        }
+        #helpButton:hover {
+            background-color: #ffe4b5;
+            transform: scale(1.05);
+        }
+
+        /* 帮助卡片（模态框）样式 (与扫雷页面相同) */
+        #helpModal {
+            display: none; /* 默认隐藏 */
+            position: fixed;
+            z-index: 100; /* 确保在最上层 */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5); /* 半透明黑色背景 */
+            backdrop-filter: blur(5px); /* 模糊背景 */
+            -webkit-backdrop-filter: blur(5px); /* Safari 兼容 */
+            padding-top: 60px;
+        }
+
+        .help-modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; /* 居中显示 */
+            padding: 30px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 192, 203, 0.5);
+            position: relative;
+            animation: fadeIn 0.3s ease-out; /* 弹出动画 */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .help-modal-content h2 {
+            color: #ff69b4;
+            margin-top: 0;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .help-modal-content p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .help-modal-content ul {
+            text-align: left;
+            margin-bottom: 20px;
+            padding-left: 25px;
+        }
+        .help-modal-content ul li {
+            margin-bottom: 8px;
+            font-size: 1.05em;
+            color: #666;
+        }
+
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #ff69b4;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* 虚拟方向键容器 (针对Pong的上下移动) */
+        #controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            /* 默认隐藏，只在小屏幕显示 */
+            display: none;
+        }
+
+        .control-button {
+            width: 80px;
+            height: 80px;
+            background-color: #ffb6c1; /* 浅粉色 */
+            color: white;
+            border: none;
+            border-radius: 50%; /* 圆形按钮 */
+            font-size: 2.5em;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(255, 182, 193, 0.4);
+            transition: background-color 0.2s, transform 0.1s;
+            user-select: none; /* 防止文本被选中 */
+            -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
+        }
+        .control-button:hover {
+            background-color: #ff69b4;
+            transform: translateY(-2px);
+        }
+        .control-button:active {
+            background-color: #e05090;
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(255, 182, 193, 0.4);
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            #pong-container {
+                padding: 20px;
+                width: 95%; /* 适应更小的屏幕 */
+            }
+            /* 在小屏幕上显示虚拟方向键 */
+            #controls {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Pong小游戏</h1>
+    <div id="pong-container">
+        <!-- 帮助按钮 -->
+        <button id="helpButton">?</button>
+
+        <div id="score-display">玩家: 0 - 电脑: 0</div>
+        <canvas id="gameCanvas" width="400" height="300"></canvas>
+        <p id="game-message"></p>
+        <button id="startButton">开始游戏</button>
+
+        <!-- 虚拟方向键 -->
+        <div id="controls">
+            <button id="up-button" class="control-button">↑</button>
+            <button id="down-button" class="control-button">↓</button>
+        </div>
+    </div>
+    <button onclick="window.location.href='game.html'" class="back-button">返回游戏中心</button>
+
+    <!-- 帮助模态框 -->
+    <div id="helpModal" class="modal">
+        <div class="help-modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Pong玩法说明</h2>
+            <p>Pong是一款经典的街机游戏，你需要控制你的球拍，将球击回对手区域，阻止对手得分。</p>
+            <ul>
+                <li><strong>目标：</strong> 先达到指定分数（例如5分）的玩家获胜。</li>
+                <li><strong>控制你的球拍：：</strong>
+                    <ul>
+                        <li><strong>桌面端：</strong> 使用键盘的 <strong>↑ (上)</strong> 和 <strong>↓ (下)</strong> 方向键，或者 <strong>W (上)</strong> 和 <strong>S (下)</strong> 键来移动你的左侧球拍。</li>
+                        <li><strong>手机端：</strong> 使用屏幕下方的 <strong>↑ (上)</strong> 和 <strong>↓ (下)</strong> 虚拟按钮来移动你的左侧球拍。</li>
+                    </ul>
+                </li>
+                <li><strong>击球：</strong> 当球碰到你的球拍时，它会反弹。尝试调整球拍位置，改变球的反弹角度。</li>
+                <li><strong>得分：：</strong> 如果球穿过对手的球拍，碰到屏幕边缘，你就会得分。</li>
+                <li><strong>电脑对手：：</strong> 右侧的球拍由电脑控制，它会尝试阻止你得分。</li>
+                <li><strong>难度递增：</strong> 随着游戏时间的推移，球的速度会逐渐加快，挑战你的反应极限！</li>
+            </ul>
+            <p>祝你好运，成为Pong大师！</p>
+        </div>
+    </div>
+
+    <script>
+        // --- 游戏配置 ---
+        const CANVAS_WIDTH = 400;
+        const CANVAS_HEIGHT = 300;
+        const PADDLE_WIDTH = 10;
+        const PADDLE_HEIGHT = 60;
+        const BALL_SIZE = 10;
+        const PADDLE_SPEED = 5;
+        const INITIAL_BALL_SPEED = 3; // 初始球速
+        const WINNING_SCORE = 5; // 达到此分数获胜
+        const GOLD_REWARD = 25; // 获胜奖励金币数量
+        const GAME_FPS = 60; // 游戏帧率
+
+        // 难度递增配置
+        const SPEED_INCREASE_INTERVAL_SECONDS = 10; // 每隔多少秒增加一次球速
+        const SPEED_INCREASE_AMOUNT = 0.1; // 每次增加的球速乘数
+        const MAX_BALL_SPEED_MULTIPLIER = 3; // 球速最大可达到初始速度的多少倍
+
+        // --- DOM 元素 ---
+        const gameCanvas = document.getElementById('gameCanvas');
+        const ctx = gameCanvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score-display');
+        const gameMessage = document.getElementById('game-message');
+        const startButton = document.getElementById('startButton');
+        const helpButton = document.getElementById('helpButton');
+        const helpModal = document.getElementById('helpModal');
+        const closeButton = document.querySelector('.close-button');
+
+        // 虚拟方向键
+        const upButton = document.getElementById('up-button');
+        const downButton = document.getElementById('down-button');
+
+        // --- 游戏状态变量 ---
+        let playerPaddle = {};
+        let aiPaddle = {};
+        let ball = {};
+        let playerScore = 0;
+        let aiScore = 0;
+        let gameInterval;
+        let isGameOver = false;
+        let gameStarted = false;
+        let playerPaddleDy = 0; // 玩家球拍的垂直移动速度
+
+        // 计时和难度变量
+        let gameStartTime = 0; // 游戏开始时间戳
+        let lastSpeedIncreaseTime = 0; // 上次增加球速的时间戳
+        let currentBallSpeedMultiplier = 1; // 当前球速乘数
+
+        // --- 游戏初始化 ---
+        function initGame() {
+            // 重置分数和游戏状态
+            playerScore = 0;
+            aiScore = 0;
+            isGameOver = false;
+            gameStarted = false;
+            gameMessage.textContent = '';
+            gameMessage.className = '';
+            scoreDisplay.textContent = `玩家: ${playerScore} - 电脑: ${aiScore}`;
+            startButton.textContent = '开始游戏';
+            startButton.disabled = false;
+
+            // 重置计时和难度变量
+            gameStartTime = 0;
+            lastSpeedIncreaseTime = 0;
+            currentBallSpeedMultiplier = 1;
+
+            clearInterval(gameInterval); // 清除任何现有的游戏循环
+
+            // 初始化球拍位置
+            playerPaddle = {
+                x: 0,
+                y: CANVAS_HEIGHT / 2 - PADDLE_HEIGHT / 2,
+                width: PADDLE_WIDTH,
+                height: PADDLE_HEIGHT,
+                dy: 0 // 玩家球拍的移动速度
+            };
+            aiPaddle = {
+                x: CANVAS_WIDTH - PADDLE_WIDTH,
+                y: CANVAS_HEIGHT / 2 - PADDLE_HEIGHT / 2,
+                width: PADDLE_WIDTH,
+                height: PADDLE_HEIGHT,
+                dy: 0 // AI球拍的移动速度
+            };
+
+            resetBall(); // 初始化球的位置和速度
+            draw(); // 绘制初始游戏板
+        }
+
+        // --- 重置球的位置和速度 ---
+        function resetBall() {
+            ball = {
+                x: CANVAS_WIDTH / 2,
+                y: CANVAS_HEIGHT / 2,
+                size: BALL_SIZE,
+                // 使用当前球速乘数来设置初始速度
+                dx: (Math.random() > 0.5 ? 1 : -1) * (INITIAL_BALL_SPEED * currentBallSpeedMultiplier),
+                dy: (Math.random() * 2 - 1) * (INITIAL_BALL_SPEED * currentBallSpeedMultiplier)
+            };
+        }
+
+        // --- 绘制游戏元素 ---
+        function draw() {
+            // 清空画布
+            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            // 绘制玩家球拍
+            ctx.fillStyle = '#00ff00'; // 绿色
+            ctx.fillRect(playerPaddle.x, playerPaddle.y, playerPaddle.width, playerPaddle.height);
+
+            // 绘制AI球拍
+            ctx.fillStyle = '#ff0000'; // 红色
+            ctx.fillRect(aiPaddle.x, aiPaddle.y, aiPaddle.width, aiPaddle.height);
+
+            // 绘制球
+            ctx.fillStyle = '#ffffff'; // 白色
+            ctx.fillRect(ball.x, ball.y, ball.size, ball.size);
+        }
+
+        // --- 更新游戏状态 (每帧调用) ---
+        function update() {
+            if (isGameOver) return;
+
+            const currentTime = Date.now();
+
+            // 难度递增逻辑
+            if (gameStarted && currentTime - lastSpeedIncreaseTime >= SPEED_INCREASE_INTERVAL_SECONDS * 1000) {
+                if (currentBallSpeedMultiplier < MAX_BALL_SPEED_MULTIPLIER) {
+                    currentBallSpeedMultiplier += SPEED_INCREASE_AMOUNT;
+                    lastSpeedIncreaseTime = currentTime;
+                    // console.log(`Ball speed increased to multiplier: ${currentBallSpeedMultiplier.toFixed(2)}`); // 可用于调试
+
+                    // 应用新的速度到当前球的dx和dy
+                    ball.dx = Math.sign(ball.dx) * (INITIAL_BALL_SPEED * currentBallSpeedMultiplier);
+                    ball.dy = Math.sign(ball.dy) * (INITIAL_BALL_SPEED * currentBallSpeedMultiplier);
+                }
+            }
+
+            // 移动玩家球拍
+            playerPaddle.y += playerPaddleDy;
+            // 限制玩家球拍在画布内
+            if (playerPaddle.y < 0) playerPaddle.y = 0;
+            if (playerPaddle.y + playerPaddle.height > CANVAS_HEIGHT) playerPaddle.y = CANVAS_HEIGHT - playerPaddle.height;
+
+            // 移动AI球拍 (简单AI：跟踪球的Y坐标)
+            // AI速度也应随难度增加，但为了简单，这里只让球速增加
+            if (ball.y < aiPaddle.y + aiPaddle.height / 2) {
+                aiPaddle.y -= PADDLE_SPEED * 0.8; // AI速度略慢于玩家
+            } else if (ball.y > aiPaddle.y + aiPaddle.height / 2) {
+                aiPaddle.y += PADDLE_SPEED * 0.8;
+            }
+            // 限制AI球拍在画布内
+            if (aiPaddle.y < 0) aiPaddle.y = 0;
+            if (aiPaddle.y + aiPaddle.height > CANVAS_HEIGHT) aiPaddle.y = CANVAS_HEIGHT - aiPaddle.height;
+
+
+            // 移动球
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            // 球与上下墙壁碰撞
+            if (ball.y < 0 || ball.y + ball.size > CANVAS_HEIGHT) {
+                ball.dy *= -1; // 反转Y方向
+            }
+
+            // 球与玩家球拍碰撞
+            if (
+                ball.x < playerPaddle.x + playerPaddle.width &&
+                ball.y + ball.size > playerPaddle.y &&
+                ball.y < playerPaddle.y + playerPaddle.height &&
+                ball.dx < 0 // 确保球是从左边撞向玩家球拍
+            ) {
+                // 反转X方向，并应用当前速度乘数
+                ball.dx = -Math.sign(ball.dx) * (INITIAL_BALL_SPEED * currentBallSpeedMultiplier);
+                // 根据击中球拍的位置调整Y方向速度，增加游戏性
+                let hitPoint = (ball.y + ball.size / 2 - (playerPaddle.y + playerPaddle.height / 2)) / (playerPaddle.height / 2);
+                ball.dy = hitPoint * (INITIAL_BALL_SPEED * currentBallSpeedMultiplier) * 1.5; // 击中边缘时Y速度更快
+            }
+
+            // 球与AI球拍碰撞
+            if (
+                ball.x + ball.size > aiPaddle.x &&
+                ball.y + ball.size > aiPaddle.y &&
+                ball.y < aiPaddle.y + aiPaddle.height &&
+                ball.dx > 0 // 确保球是从右边撞向AI球拍
+            ) {
+                // 反转X方向，并应用当前速度乘数
+                ball.dx = -Math.sign(ball.dx) * (INITIAL_BALL_SPEED * currentBallSpeedMultiplier);
+                // 根据击中球拍的位置调整Y方向速度
+                let hitPoint = (ball.y + ball.size / 2 - (aiPaddle.y + aiPaddle.height / 2)) / (aiPaddle.height / 2);
+                ball.dy = hitPoint * (INITIAL_BALL_SPEED * currentBallSpeedMultiplier) * 1.5;
+            }
+
+            // 球出界 (得分)
+            if (ball.x < 0) { // AI得分
+                aiScore++;
+                scoreDisplay.textContent = `玩家: ${playerScore} - 电脑: ${aiScore}`;
+                checkWin();
+                resetBall(); // 重置球时会使用当前速度乘数
+            } else if (ball.x + ball.size > CANVAS_WIDTH) { // 玩家得分
+                playerScore++;
+                scoreDisplay.textContent = `玩家: ${playerScore} - 电脑: ${aiScore}`;
+                checkWin();
+                resetBall(); // 重置球时会使用当前速度乘数
+            }
+
+            draw(); // 重新绘制游戏
+        }
+
+        // --- 检查胜利条件 ---
+        function checkWin() {
+            if (playerScore >= WINNING_SCORE) {
+                gameOver(true); // 玩家胜利
+            } else if (aiScore >= WINNING_SCORE) {
+                gameOver(false); // 电脑胜利
+            }
+        }
+
+        // --- 游戏结束处理 ---
+        function gameOver(isPlayerWin) {
+            isGameOver = true;
+            clearInterval(gameInterval); // 停止游戏循环
+            gameInterval = null;
+
+            if (isPlayerWin) {
+                gameMessage.textContent = `恭喜你，你赢了！获得了 ${GOLD_REWARD} 金币！`;
+                gameMessage.classList.add('message-win');
+                addGoldToMainGame(GOLD_REWARD); // 奖励金币
+            } else {
+                gameMessage.textContent = `很遗憾，你输了！电脑获胜。`;
+                gameMessage.classList.add('message-lose');
+            }
+            startButton.textContent = '重新开始';
+            startButton.disabled = false; // 启用重新开始按钮
+        }
+
+        // --- 开始游戏 ---
+        function startGame() {
+            if (gameStarted) return; // 防止重复开始
+            gameStarted = true;
+            isGameOver = false;
+            startButton.disabled = true; // 游戏进行时禁用开始按钮
+            gameMessage.textContent = '';
+
+            // 记录游戏开始时间，用于计时和难度递增
+            gameStartTime = Date.now();
+            lastSpeedIncreaseTime = Date.now();
+            currentBallSpeedMultiplier = 1; // 确保每次开始游戏都从初始速度开始
+
+            gameInterval = setInterval(update, 1000 / GAME_FPS);
+        }
+
+        // --- 处理键盘输入改变方向 ---
+        function handleKeyDown(event) {
+            // 阻止页面滚动
+            if (['ArrowUp', 'ArrowDown', 'w', 's'].includes(event.key.toLowerCase())) {
+                event.preventDefault();
+            }
+
+            if (isGameOver || !gameStarted) return;
+
+            if (event.key === 'ArrowUp' || event.key.toLowerCase() === 'w') {
+                playerPaddleDy = -PADDLE_SPEED;
+            } else if (event.key === 'ArrowDown' || event.key.toLowerCase() === 's') {
+                playerPaddleDy = PADDLE_SPEED;
+            }
+        }
+
+        function handleKeyUp(event) {
+            if (isGameOver || !gameStarted) return;
+
+            if (
+                (event.key === 'ArrowUp' || event.key.toLowerCase() === 'w') && playerPaddleDy < 0 ||
+                (event.key === 'ArrowDown' || event.key.toLowerCase() === 's') && playerPaddleDy > 0
+            ) {
+                playerPaddleDy = 0; // 停止移动
+            }
+        }
+
+        // --- 处理虚拟方向键点击 ---
+        function handleVirtualPaddleMove(direction) {
+            if (isGameOver || !gameStarted) return;
+            playerPaddleDy = direction * PADDLE_SPEED;
+        }
+
+        function handleVirtualPaddleStop() {
+            playerPaddleDy = 0;
+        }
+
+
+        // --- 与主游戏交互：增加金币 (与扫雷页面相同) ---
+        function addGoldToMainGame(amount) {
+            const savedState = localStorage.getItem('catGameSaveState');
+            if (savedState) {
+                try {
+                    let cat = JSON.parse(savedState);
+                    if (typeof cat.gold === 'undefined') {
+                        cat.gold = 0; // 如果没有 gold 属性，初始化为 0
+                    }
+                    cat.gold += amount;
+                    localStorage.setItem('catGameSaveState', JSON.stringify(cat));
+                    console.log(`成功为主游戏增加了 ${amount} 金币。当前金币: ${cat.gold}`);
+                } catch (e) {
+                    console.error('解析主游戏存档失败，无法增加金币:', e);
+                }
+            } else {
+                console.warn('未找到主游戏存档，无法增加金币。');
+            }
+        }
+
+        // --- 事件监听器 ---
+        startButton.addEventListener('click', () => {
+            if (isGameOver || !gameStarted) {
+                initGame();
+                startGame();
+            }
+        });
+        document.addEventListener('keydown', handleKeyDown);
+        document.addEventListener('keyup', handleKeyUp);
+
+        // 虚拟方向键事件监听 (使用 touchstart/touchend 模拟按住和松开)
+        upButton.addEventListener('touchstart', (e) => { e.preventDefault(); handleVirtualPaddleMove(-1); }, { passive: false });
+        upButton.addEventListener('touchend', handleVirtualPaddleStop);
+        upButton.addEventListener('mousedown', () => handleVirtualPaddleMove(-1));
+        upButton.addEventListener('mouseup', handleVirtualPaddleStop);
+        upButton.addEventListener('mouseleave', handleVirtualPaddleStop); // 鼠标移出按钮也停止
+
+        downButton.addEventListener('touchstart', (e) => { e.preventDefault(); handleVirtualPaddleMove(1); }, { passive: false });
+        downButton.addEventListener('touchend', handleVirtualPaddleStop);
+        downButton.addEventListener('mousedown', () => handleVirtualPaddleMove(1));
+        downButton.addEventListener('mouseup', handleVirtualPaddleStop);
+        downButton.addEventListener('mouseleave', handleVirtualPaddleStop); // 鼠标移出按钮也停止
+
+
+        // 帮助按钮点击事件
+        helpButton.addEventListener('click', () => {
+            helpModal.style.display = 'block';
+        });
+
+        // 关闭按钮点击事件
+        closeButton.addEventListener('click', () => {
+            helpModal.style.display = 'none';
+        });
+
+        // 点击模态框外部关闭
+        window.addEventListener('click', (event) => {
+            if (event.target === helpModal) {
+                helpModal.style.display = 'none';
+            }
+        });
+
+        // --- 页面加载时初始化游戏 ---
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>

@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打地鼠小游戏</title>
+    <style>
+        /* 继承主页面的可爱风格 */
+        body {
+            font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #fdf3f8; /* 柔和的粉色背景 */
+            background-image: url('https://www.transparenttextures.com/patterns/light-honeycomb.png');
+            color: #555;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative; /* 用于定位帮助按钮 */
+        }
+        h1 {
+            color: #ff69b4; /* 可爱的热粉色标题 */
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        /* 返回游戏中心按钮的样式 */
+        .back-button {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            background-color: #98fb98; /* 浅绿色按钮 */
+            color: #333;
+            border: none;
+            border-radius: 15px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 15px rgba(152, 251, 152, 0.3);
+            margin-top: 30px; /* 与游戏区域保持距离 */
+        }
+        .back-button:hover {
+            background-color: #66cd66;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 205, 102, 0.4);
+        }
+        .back-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(102, 90, 205, 0.3);
+        }
+
+        /* 打地鼠游戏容器样式 */
+        #whac-a-mole-container {
+            background-color: #ffffff;
+            border-radius: 25px;
+            box-shadow: 0 15px 30px rgba(255, 192, 203, 0.3);
+            padding: 30px;
+            text-align: center;
+            max-width: 500px; /* 适应游戏板大小 */
+            width: 90%;
+            margin-bottom: 20px;
+            border: 2px solid #ffe4e1;
+            position: relative; /* 用于定位帮助按钮 */
+        }
+
+        /* 游戏信息显示 */
+        #game-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ff69b4; /* 可爱的粉色 */
+            margin-bottom: 15px;
+            background-color: #fff0f5;
+            padding: 10px 15px;
+            border-radius: 12px;
+            border: 1px solid #ffebf0;
+        }
+        #game-info span {
+            flex: 1;
+            text-align: center;
+        }
+        #game-info span:first-child { text-align: left; }
+        #game-info span:last-child { text-align: right; }
+
+        /* 地鼠网格 */
+        #mole-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3x3 网格 */
+            grid-gap: 15px;
+            width: 300px; /* 固定网格宽度 */
+            height: 300px; /* 固定网格高度 */
+            margin: 20px auto;
+            padding: 15px;
+            background-color: #8b4513; /* 泥土色背景 */
+            border-radius: 15px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.3);
+        }
+
+        .mole-hole {
+            width: 90px;
+            height: 90px;
+            background-color: #a0522d; /* 洞的颜色 */
+            border-radius: 50%; /* 圆形洞 */
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; /* 地鼠从底部冒出 */
+            overflow: hidden; /* 隐藏超出洞口的地鼠部分 */
+            position: relative;
+            border: 3px solid #654321;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+            cursor: pointer; /* 鼠标指针 */
+        }
+
+        .mole {
+            width: 80px;
+            height: 80px;
+            background-color: #8b4513; /* 地鼠身体颜色 */
+            border-radius: 50%;
+            position: absolute;
+            bottom: -80px; /* 初始隐藏在洞口下方 */
+            transition: bottom 0.1s ease-out; /* 弹出动画 */
+            pointer-events: none; /* 默认不响应点击，由父元素处理 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3em; /* 地鼠表情 */
+            line-height: 1;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            border: 2px solid #654321;
+        }
+
+        .mole.up {
+            bottom: 5px; /* 弹出到洞口上方 */
+            pointer-events: auto; /* 弹出后响应点击 */
+            cursor: pointer; /* 鼠标指针 */
+        }
+
+        /* 游戏消息样式 */
+        #game-message {
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #ff69b4;
+            min-height: 1.5em; /* 确保消息区域高度稳定 */
+        }
+        .message-win { color: #008000; } /* 胜利消息绿色 */
+        .message-lose { color: #ff0000; } /* 失败消息红色 */
+
+        /* 开始/重新开始按钮样式 */
+        #startButton {
+            margin-top: 20px;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            background-color: #87ceeb; /* 天蓝色 */
+            color: white;
+            border: none;
+            border-radius: 15px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 15px rgba(135, 206, 235, 0.3);
+        }
+        #startButton:hover {
+            background-color: #6a5acd;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(106, 90, 205, 0.4);
+        }
+        #startButton:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(106, 90, 205, 0.3);
+        }
+
+        /* 帮助按钮样式 (与扫雷页面相同) */
+        #helpButton {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ffebcd; /* 杏仁色 */
+            color: #d2691e; /* 巧克力色 */
+            border: 2px solid #deb887; /* 沙棕色 */
+            font-size: 1.8em;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.2s, transform 0.2s;
+            z-index: 10; /* 确保在其他元素之上 */
+        }
+        #helpButton:hover {
+            background-color: #ffe4b5;
+            transform: scale(1.05);
+        }
+
+        /* 帮助卡片（模态框）样式 (与扫雷页面相同) */
+        #helpModal {
+            display: none; /* 默认隐藏 */
+            position: fixed;
+            z-index: 100; /* 确保在最上层 */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5); /* 半透明黑色背景 */
+            backdrop-filter: blur(5px); /* 模糊背景 */
+            -webkit-backdrop-filter: blur(5px); /* Safari 兼容 */
+            padding-top: 60px;
+        }
+
+        .help-modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; /* 居中显示 */
+            padding: 30px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 192, 203, 0.5);
+            position: relative;
+            animation: fadeIn 0.3s ease-out; /* 弹出动画 */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .help-modal-content h2 {
+            color: #ff69b4;
+            margin-top: 0;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .help-modal-content p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .help-modal-content ul {
+            text-align: left;
+            margin-bottom: 20px;
+            padding-left: 25px;
+        }
+        .help-modal-content ul li {
+            margin-bottom: 8px;
+            font-size: 1.05em;
+            color: #666;
+        }
+
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #ff69b4;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            #whac-a-mole-container {
+                padding: 20px;
+                width: 95%; /* 适应更小的屏幕 */
+            }
+            #mole-grid {
+                width: 90%; /* 适应小屏幕 */
+                height: auto;
+                max-width: 300px;
+            }
+            .mole-hole {
+                width: 80px;
+                height: 80px;
+            }
+            .mole {
+                width: 70px;
+                height: 70px;
+                bottom: -70px;
+            }
+            .mole.up {
+                bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>打地鼠小游戏</h1>
+    <div id="whac-a-mole-container">
+        <!-- 帮助按钮 -->
+        <button id="helpButton">?</button>
+
+        <div id="game-info">
+            <span id="score-display">分数: 0</span>
+            <span id="timer-display">时间: 30s</span>
+        </div>
+        <div id="mole-grid">
+            <!-- 地鼠洞将由JS动态生成 -->
+        </div>
+        <p id="game-message"></p>
+        <button id="startButton">开始游戏</button>
+    </div>
+    <button onclick="window.location.href='game.html'" class="back-button">返回游戏中心</button>
+
+    <!-- 帮助模态框 -->
+    <div id="helpModal" class="modal">
+        <div class="help-modal-content">
+            <span class="close-button">&times;</span>
+            <h2>打地鼠玩法说明</h2>
+            <p>在规定时间内，尽可能多地敲打冒出来的地鼠，达到目标分数即可获胜！</p>
+            <ul>
+                <li><strong>目标：</strong> 在 30 秒内达到 <strong>100 分</strong>。</li>
+                <li><strong>玩法：：</strong> 当地鼠从洞里冒出来时，快速点击（或敲击）它。</li>
+                <li><strong>得分：：</strong> 成功敲打一只地鼠会获得 <strong>10 分</strong>。</li>
+                <li><strong>时间：：</strong> 游戏持续 30 秒。时间结束后，根据你的分数判断胜负。</li>
+                <li><strong>难度递增：：</strong> 随着游戏时间的推移，地鼠会冒得更快，甚至会有多个地鼠同时冒出，挑战你的反应极限！</li>
+            </ul>
+            <p>祝你好运，成为打地鼠高手！</p>
+        </div>
+    </div>
+
+    <script>
+        // --- 游戏配置 ---
+        const GRID_SIZE = 9; // 3x3 网格，共9个洞
+        const GAME_DURATION_SECONDS = 30; // 游戏总时长
+        const SCORE_PER_MOLE = 10; // 每打中一只地鼠获得的分数
+        const TARGET_SCORE = 100; // 获胜所需分数
+        const GOLD_REWARD = 35; // 获胜奖励金币数量
+        const MOLE_GAME_LOOP_INTERVAL_MS = 100; // 每隔多少毫秒检查一次是否需要弹出新地鼠
+
+        // 难度设置 (timeThreshold 是游戏进行到多少秒时切换到此难度)
+        const DIFFICULTY_SETTINGS = [
+            {
+                level: 0,
+                timeThreshold: 0, // 游戏开始时
+                maxSimultaneousMoles: 1, // 最多同时出现1只地鼠
+                appearMin: 1000, // 地鼠最短停留时间 (ms)
+                appearMax: 2000, // 地鼠最长停留时间 (ms)
+                popIntervalMin: 800, // 地鼠下次出现的最短间隔 (ms)
+                popIntervalMax: 1500 // 地鼠下次出现的最长间隔 (ms)
+            },
+            {
+                level: 1,
+                timeThreshold: 10, // 游戏进行10秒后
+                maxSimultaneousMoles: 2, // 最多同时出现2只地鼠
+                appearMin: 800,
+                appearMax: 1500,
+                popIntervalMin: 600,
+                popIntervalMax: 1200
+            },
+            {
+                level: 2,
+                timeThreshold: 20, // 游戏进行20秒后
+                maxSimultaneousMoles: 3, // 最多同时出现3只地鼠
+                appearMin: 600,
+                appearMax: 1200,
+                popIntervalMin: 400,
+                popIntervalMax: 800
+            }
+            // 可以根据需要添加更多难度级别
+        ];
+
+        // --- DOM 元素 ---
+        const moleGrid = document.getElementById('mole-grid');
+        const scoreDisplay = document.getElementById('score-display');
+        const timerDisplay = document.getElementById('timer-display');
+        const gameMessage = document.getElementById('game-message');
+        const startButton = document.getElementById('startButton');
+        const helpButton = document.getElementById('helpButton');
+        const helpModal = document.getElementById('helpModal');
+        const closeButton = document.querySelector('.close-button');
+
+        // --- 游戏状态变量 ---
+        let score = 0;
+        let timeLeft = GAME_DURATION_SECONDS;
+        let gameInterval; // 用于倒计时
+        let moleGameLoopInterval; // 用于管理地鼠弹出逻辑
+        let moleHideTimeouts = new Array(GRID_SIZE).fill(null); // 存储每个地鼠的隐藏计时器ID
+        let activeMoles = new Set(); // 存储当前正在冒出的地鼠的索引
+        let lastPopTime = 0; // 上次弹出地鼠的时间
+        let isGameOver = false;
+        let gameStarted = false;
+        let gameStartTime = 0; // 游戏开始时间戳，用于难度计算
+        let currentDifficulty = DIFFICULTY_SETTINGS[0]; // 当前难度级别
+
+        // --- 游戏初始化 ---
+        function initGame() {
+            // 重置分数、时间、游戏状态
+            score = 0;
+            timeLeft = GAME_DURATION_SECONDS;
+            isGameOver = false;
+            gameStarted = false;
+            activeMoles.clear(); // 清空活跃地鼠
+            moleHideTimeouts.fill(null); // 清空所有隐藏计时器
+            lastPopTime = 0;
+            gameStartTime = 0;
+            currentDifficulty = DIFFICULTY_SETTINGS[0]; // 重置为初始难度
+
+            gameMessage.textContent = '';
+            gameMessage.className = '';
+            scoreDisplay.textContent = `分数: ${score}`;
+            timerDisplay.textContent = `时间: ${timeLeft}s`;
+            startButton.textContent = '开始游戏';
+            startButton.disabled = false;
+
+            clearInterval(gameInterval);
+            clearInterval(moleGameLoopInterval);
+            moleHideTimeouts.forEach(timeoutId => clearTimeout(timeoutId)); // 清除所有地鼠的隐藏计时器
+
+            // 清空并重新生成地鼠洞
+            moleGrid.innerHTML = '';
+            for (let i = 0; i < GRID_SIZE; i++) {
+                const moleHole = document.createElement('div');
+                moleHole.classList.add('mole-hole');
+                moleHole.dataset.index = i; // 存储索引
+                const mole = document.createElement('div');
+                mole.classList.add('mole');
+                mole.textContent = '🐭'; // 地鼠表情
+                moleHole.appendChild(mole);
+                moleGrid.appendChild(moleHole);
+            }
+
+            // 确保所有地鼠都隐藏
+            document.querySelectorAll('.mole').forEach(mole => mole.classList.remove('up'));
+        }
+
+        // --- 弹出指定索引的地鼠 ---
+        function popMole(index) {
+            if (isGameOver || activeMoles.has(index)) return; // 游戏结束或地鼠已弹出则不操作
+
+            const moles = document.querySelectorAll('.mole');
+            const moleToPop = moles[index];
+
+            moleToPop.classList.add('up');
+            activeMoles.add(index); // 添加到活跃地鼠集合
+
+            // 设置地鼠自动隐藏的计时器
+            const appearTime = Math.random() * (currentDifficulty.appearMax - currentDifficulty.appearMin) + currentDifficulty.appearMin;
+            moleHideTimeouts[index] = setTimeout(() => {
+                hideMole(index);
+            }, appearTime);
+        }
+
+        // --- 隐藏指定索引的地鼠 ---
+        function hideMole(index) {
+            if (!activeMoles.has(index)) return; // 如果地鼠未弹出则不操作
+
+            const moles = document.querySelectorAll('.mole');
+            moles[index].classList.remove('up');
+            activeMoles.delete(index); // 从活跃地鼠集合中移除
+
+            clearTimeout(moleHideTimeouts[index]); // 清除该地鼠的隐藏计时器
+            moleHideTimeouts[index] = null;
+        }
+
+        // --- 敲打地鼠 ---
+        function whacMole(event) {
+            if (isGameOver || !gameStarted) return;
+
+            const clickedMoleHole = event.target.closest('.mole-hole');
+            if (clickedMoleHole) {
+                const clickedIndex = parseInt(clickedMoleHole.dataset.index);
+                const clickedMole = clickedMoleHole.querySelector('.mole');
+
+                if (activeMoles.has(clickedIndex) && clickedMole.classList.contains('up')) {
+                    score += SCORE_PER_MOLE;
+                    scoreDisplay.textContent = `分数: ${score}`;
+
+                    hideMole(clickedIndex); // 立即隐藏被敲打的地鼠
+                }
+            }
+        }
+
+        // --- 管理地鼠弹出逻辑 (由 moleGameLoopInterval 定时调用) ---
+        function manageMoles() {
+            if (isGameOver) return;
+
+            const currentTime = Date.now();
+            const elapsedTimeSeconds = Math.floor((currentTime - gameStartTime) / 1000);
+
+            // 更新难度级别
+            let newDifficulty = currentDifficulty;
+            for (let i = DIFFICULTY_SETTINGS.length - 1; i >= 0; i--) {
+                if (elapsedTimeSeconds >= DIFFICULTY_SETTINGS[i].timeThreshold) {
+                    newDifficulty = DIFFICULTY_SETTINGS[i];
+                    break;
+                }
+            }
+            if (newDifficulty !== currentDifficulty) {
+                currentDifficulty = newDifficulty;
+                // console.log(`Difficulty changed to level ${currentDifficulty.level} at ${elapsedTimeSeconds}s`); // 调试用
+            }
+
+            // 检查是否可以弹出新地鼠
+            if (activeMoles.size < currentDifficulty.maxSimultaneousMoles &&
+                (currentTime - lastPopTime) >= (Math.random() * (currentDifficulty.popIntervalMax - currentDifficulty.popIntervalMin) + currentDifficulty.popIntervalMin)) {
+
+                let availableHoles = [];
+                for (let i = 0; i < GRID_SIZE; i++) {
+                    if (!activeMoles.has(i)) {
+                        availableHoles.push(i);
+                    }
+                }
+
+                if (availableHoles.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * availableHoles.length);
+                    const moleIndexToPop = availableHoles[randomIndex];
+                    popMole(moleIndexToPop);
+                    lastPopTime = currentTime; // 更新上次弹出时间
+                }
+            }
+        }
+
+        // --- 游戏结束处理 ---
+        function endGame() {
+            isGameOver = true;
+            gameStarted = false;
+            clearInterval(gameInterval);
+            clearInterval(moleGameLoopInterval);
+            moleHideTimeouts.forEach(timeoutId => clearTimeout(timeoutId)); // 清除所有地鼠的隐藏计时器
+            activeMoles.forEach(index => hideMole(index)); // 确保所有地鼠都隐藏
+
+            if (score >= TARGET_SCORE) {
+                gameMessage.textContent = `恭喜你，你赢了！获得了 ${GOLD_REWARD} 金币！`;
+                gameMessage.classList.add('message-win');
+                addGoldToMainGame(GOLD_REWARD); // 奖励金币
+            } else {
+                gameMessage.textContent = `时间到！你的分数是 ${score}。未达到目标分数 ${TARGET_SCORE}。`;
+                gameMessage.classList.add('message-lose');
+            }
+            startButton.textContent = '重新开始';
+            startButton.disabled = false; // 启用重新开始按钮
+        }
+
+        // --- 开始游戏 ---
+        function startGame() {
+            if (gameStarted) return; // 防止重复开始
+            gameStarted = true;
+            isGameOver = false;
+            startButton.disabled = true; // 游戏进行时禁用开始按钮
+            gameMessage.textContent = '';
+
+            score = 0;
+            timeLeft = GAME_DURATION_SECONDS;
+            scoreDisplay.textContent = `分数: ${score}`;
+            timerDisplay.textContent = `时间: ${timeLeft}s`;
+            gameStartTime = Date.now(); // 记录游戏开始时间
+            lastPopTime = Date.now(); // 初始化上次弹出时间
+            currentDifficulty = DIFFICULTY_SETTINGS[0]; // 确保从初始难度开始
+
+            // 启动倒计时
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = `时间: ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+
+            // 启动地鼠管理循环
+            moleGameLoopInterval = setInterval(manageMoles, MOLE_GAME_LOOP_INTERVAL_MS);
+        }
+
+        // --- 与主游戏交互：增加金币 (与扫雷页面相同) ---
+        function addGoldToMainGame(amount) {
+            const savedState = localStorage.getItem('catGameSaveState');
+            if (savedState) {
+                try {
+                    let cat = JSON.parse(savedState);
+                    if (typeof cat.gold === 'undefined') {
+                        cat.gold = 0; // 如果没有 gold 属性，初始化为 0
+                    }
+                    cat.gold += amount;
+                    localStorage.setItem('catGameSaveState', JSON.stringify(cat));
+                    console.log(`成功为主游戏增加了 ${amount} 金币。当前金币: ${cat.gold}`);
+                } catch (e) {
+                    console.error('解析主游戏存档失败，无法增加金币:', e);
+                }
+            } else {
+                console.warn('未找到主游戏存档，无法增加金币。');
+            }
+        }
+
+        // --- 事件监听器 ---
+        startButton.addEventListener('click', () => {
+            if (isGameOver || !gameStarted) {
+                initGame(); // 确保每次开始都完全重置
+                startGame();
+            }
+        });
+
+        moleGrid.addEventListener('click', whacMole); // 监听网格点击，由whacMole处理具体逻辑
+
+        // 帮助按钮点击事件
+        helpButton.addEventListener('click', () => {
+            helpModal.style.display = 'block';
+        });
+
+        // 关闭按钮点击事件
+        closeButton.addEventListener('click', () => {
+            helpModal.style.display = 'none';
+        });
+
+        // 点击模态框外部关闭
+        window.addEventListener('click', (event) => {
+            if (event.target === helpModal) {
+                helpModal.style.display = 'none';
+            }
+        });
+
+        // --- 页面加载时初始化游戏 ---
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>

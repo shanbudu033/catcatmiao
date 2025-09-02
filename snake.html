@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贪吃蛇小游戏</title>
+    <style>
+        /* 继承主页面的可爱风格 */
+        body {
+            font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #fdf3f8; /* 柔和的粉色背景 */
+            background-image: url('https://www.transparenttextures.com/patterns/light-honeycomb.png');
+            color: #555;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative; /* 用于定位帮助按钮 */
+        }
+        h1 {
+            color: #ff69b4; /* 可爱的热粉色标题 */
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        /* 返回游戏中心按钮的样式 */
+        .back-button {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            background-color: #98fb98; /* 浅绿色按钮 */
+            color: #333;
+            border: none;
+            border-radius: 15px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 15px rgba(152, 251, 152, 0.3);
+            margin-top: 30px; /* 与游戏区域保持距离 */
+        }
+        .back-button:hover {
+            background-color: #66cd66;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 205, 102, 0.4);
+        }
+        .back-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(102, 90, 205, 0.3);
+        }
+
+        /* 贪吃蛇游戏容器样式 */
+        #snake-container {
+            background-color: #ffffff;
+            border-radius: 25px;
+            box-shadow: 0 15px 30px rgba(255, 192, 203, 0.3);
+            padding: 30px;
+            text-align: center;
+            max-width: 500px; /* 适应游戏板大小 */
+            width: 90%;
+            margin-bottom: 20px;
+            border: 2px solid #ffe4e1;
+            position: relative; /* 用于定位帮助按钮 */
+        }
+
+        /* 游戏分数显示 */
+        #score-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ff69b4; /* 可爱的粉色 */
+            margin-bottom: 15px;
+            background-color: #fff0f5;
+            padding: 10px 15px;
+            border-radius: 12px;
+            border: 1px solid #ffebf0;
+        }
+
+        /* 游戏板网格样式 */
+        #game-board {
+            display: grid;
+            /* grid-template-columns 和 grid-template-rows 会由 JavaScript 设置 */
+            border: 2px solid #ccc;
+            margin: 20px auto;
+            background-color: #e0ffff; /* 浅蓝色板子 */
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1); /* 内部阴影 */
+            border-radius: 5px;
+        }
+
+        /* 网格单元格基础样式 */
+        .grid-cell {
+            width: 20px; /* 固定单元格大小 */
+            height: 20px;
+            background-color: #e0ffff; /* 默认板子颜色 */
+        }
+
+        /* 蛇身体样式 */
+        .snake-body {
+            background-color: #8bc34a; /* 绿色蛇身 */
+            border-radius: 3px; /* 略带圆角 */
+        }
+        /* 蛇头样式 */
+        .snake-head {
+            background-color: #4caf50; /* 深绿色蛇头 */
+            border-radius: 50%; /* 圆形蛇头 */
+        }
+
+        /* 食物样式 */
+        .food {
+            background-color: #ff5722; /* 橙色食物 */
+            border-radius: 50%; /* 圆形食物 */
+        }
+
+        /* 游戏消息样式 */
+        #game-message {
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #ff69b4;
+            min-height: 1.5em; /* 确保消息区域高度稳定 */
+        }
+        .message-lose { color: #ff0000; } /* 失败消息红色 */
+
+        /* 开始/重新开始按钮样式 */
+        #start-button {
+            margin-top: 20px;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            background-color: #87ceeb; /* 天蓝色 */
+            color: white;
+            border: none;
+            border-radius: 15px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 15px rgba(135, 206, 235, 0.3);
+        }
+        #start-button:hover {
+            background-color: #6a5acd;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(106, 90, 205, 0.4);
+        }
+        #start-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(106, 90, 205, 0.3);
+        }
+
+        /* 帮助按钮样式 (与扫雷页面相同) */
+        #helpButton {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ffebcd; /* 杏仁色 */
+            color: #d2691e; /* 巧克力色 */
+            border: 2px solid #deb887; /* 沙棕色 */
+            font-size: 1.8em;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.2s, transform 0.2s;
+            z-index: 10; /* 确保在其他元素之上 */
+        }
+        #helpButton:hover {
+            background-color: #ffe4b5;
+            transform: scale(1.05);
+        }
+
+        /* 帮助卡片（模态框）样式 (与扫雷页面相同) */
+        #helpModal {
+            display: none; /* 默认隐藏 */
+            position: fixed;
+            z-index: 100; /* 确保在最上层 */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5); /* 半透明黑色背景 */
+            backdrop-filter: blur(5px); /* 模糊背景 */
+            -webkit-backdrop-filter: blur(5px); /* Safari 兼容 */
+            padding-top: 60px;
+        }
+
+        .help-modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; /* 居中显示 */
+            padding: 30px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 192, 203, 0.5);
+            position: relative;
+            animation: fadeIn 0.3s ease-out; /* 弹出动画 */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .help-modal-content h2 {
+            color: #ff69b4;
+            margin-top: 0;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .help-modal-content p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .help-modal-content ul {
+            text-align: left;
+            margin-bottom: 20px;
+            padding-left: 25px;
+        }
+        .help-modal-content ul li {
+            margin-bottom: 8px;
+            font-size: 1.05em;
+            color: #666;
+        }
+
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #ff69b4;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* 虚拟方向键容器 */
+        #controls {
+            display: grid;
+            grid-template-columns: repeat(3, 60px); /* 3列，每列60px */
+            grid-template-rows: repeat(3, 60px); /* 3行，每行60px */
+            gap: 5px;
+            margin-top: 20px;
+            width: 185px; /* 3*60 + 2*5 */
+            height: 185px;
+            justify-content: center;
+            align-items: center;
+            /* 默认隐藏，只在小屏幕显示 */
+            display: none;
+        }
+
+        .control-button {
+            width: 60px;
+            height: 60px;
+            background-color: #ffb6c1; /* 浅粉色 */
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.8em;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(255, 182, 193, 0.4);
+            transition: background-color 0.2s, transform 0.1s;
+            user-select: none; /* 防止文本被选中 */
+            -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
+        }
+        .control-button:hover {
+            background-color: #ff69b4;
+            transform: translateY(-2px);
+        }
+        .control-button:active {
+            background-color: #e05090;
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(255, 182, 193, 0.4);
+        }
+
+        /* 虚拟方向键布局 */
+        #up-button { grid-column: 2; grid-row: 1; }
+        #left-button { grid-column: 1; grid-row: 2; }
+        #right-button { grid-column: 3; grid-row: 2; }
+        #down-button { grid-column: 2; grid-row: 3; }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            #snake-container {
+                padding: 20px;
+                width: 95%; /* 适应更小的屏幕 */
+            }
+            #game-board {
+                /* 在小屏幕上，游戏板可能需要缩小 */
+                /* 假设 CELL_SIZE 仍然是 20px，那么 BOARD_SIZE * CELL_SIZE = 400px */
+                /* 如果屏幕宽度小于 400px，游戏板会溢出 */
+                /* 我们可以通过设置 max-width 和 height: auto 来让它自适应 */
+                max-width: 100%; /* 限制最大宽度为容器的100% */
+                height: auto; /* 高度自适应 */
+                /* 或者，如果希望单元格也缩小，需要JS动态调整CELL_SIZE */
+                /* 这里我们先保持CELL_SIZE不变，让容器自适应 */
+            }
+            /* 在小屏幕上显示虚拟方向键 */
+            #controls {
+                display: grid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>贪吃蛇小游戏</h1>
+    <div id="snake-container">
+        <!-- 帮助按钮 -->
+        <button id="helpButton">?</button>
+
+        <div id="score-display">分数: 0</div>
+        <div id="game-board"></div>
+        <p id="game-message"></p>
+        <button id="start-button">开始游戏</button>
+
+        <!-- 虚拟方向键 -->
+        <div id="controls">
+            <button id="up-button" class="control-button">↑</button>
+            <button id="left-button" class="control-button">←</button>
+            <button id="right-button" class="control-button">→</button>
+            <button id="down-button" class="control-button">↓</button>
+        </div>
+    </div>
+    <button onclick="window.location.href='game.html'" class="back-button">返回游戏中心</button>
+
+    <!-- 帮助模态框 -->
+    <div id="helpModal" class="modal">
+        <div class="help-modal-content">
+            <span class="close-button">&times;</span>
+            <h2>贪吃蛇玩法说明</h2>
+            <p>控制你的小蛇在方格中移动，吃掉食物，让身体变长！</p>
+            <ul>
+                <li><strong>控制方向：</strong> 使用键盘的 <strong>方向键 (↑ ↓ ← →)</strong> 或屏幕下方的 <strong>虚拟方向键</strong> 来控制蛇的移动方向。</li>
+                <li><strong>吃食物：</strong> 当蛇头碰到食物 🍎 时，蛇会变长，你的分数会增加。</li>
+                <li><strong>避免碰撞：</strong>
+                    <ul>
+                        <li>不要撞到游戏板的边缘。</li>
+                        <li>不要撞到自己的身体。</li>
+                    </ul>
+                </li>
+                <li><strong>游戏结束：</strong> 撞到边缘或自己的身体时，游戏结束。</li>
+                <li><strong>目标：：</strong> 尽可能吃掉更多食物，获得更高的分数！</li>
+            </ul>
+            <p>祝你好运，让你的蛇变得又长又壮！</p>
+        </div>
+    </div>
+
+    <script>
+        // --- 游戏配置 ---
+        const BOARD_SIZE = 20; // 20x20 的游戏板
+        const CELL_SIZE = 20; // 每个单元格的像素大小
+        const INITIAL_SNAKE_LENGTH = 3; // 初始蛇的长度
+        const GAME_SPEED = 150; // 游戏更新速度（毫秒，值越小越快）
+        const GOLD_PER_GAME = 15; // 每次游戏结束奖励的金币数量
+
+        // --- DOM 元素 ---
+        const gameBoard = document.getElementById('game-board');
+        const scoreDisplay = document.getElementById('score-display');
+        const gameMessage = document.getElementById('game-message');
+        const startButton = document.getElementById('start-button');
+        const helpButton = document.getElementById('helpButton');
+        const helpModal = document.getElementById('helpModal');
+        const closeButton = document.querySelector('.close-button');
+
+        // 虚拟方向键
+        const upButton = document.getElementById('up-button');
+        const downButton = document.getElementById('down-button');
+        const leftButton = document.getElementById('left-button');
+        const rightButton = document.getElementById('right-button');
+
+
+        // --- 游戏状态变量 ---
+        let snake = []; // 存储蛇的每个身体节段的坐标
+        let food = {}; // 食物的坐标
+        let direction = { x: 1, y: 0 }; // 蛇的当前移动方向 (初始向右)
+        let score = 0; // 当前分数
+        let gameInterval; // 游戏循环的计时器
+        let isGameOver = false; // 游戏是否结束
+        let gameStarted = false; // 游戏是否已开始（用于控制开始按钮和方向输入）
+        let changingDirection = false; // 防止在同一帧内多次改变方向
+
+        // --- 初始化游戏板的 CSS Grid 布局 ---
+        gameBoard.style.gridTemplateColumns = `repeat(${BOARD_SIZE}, ${CELL_SIZE}px)`;
+        gameBoard.style.gridTemplateRows = `repeat(${BOARD_SIZE}, ${CELL_SIZE}px)`;
+        gameBoard.style.width = `${BOARD_SIZE * CELL_SIZE}px`;
+        gameBoard.style.height = `${BOARD_SIZE * CELL_SIZE}px`;
+
+        // --- 游戏初始化 ---
+        function initGame() {
+            // 重置游戏状态
+            snake = [];
+            food = {};
+            direction = { x: 1, y: 0 }; // 初始向右移动
+            score = 0;
+            isGameOver = false;
+            gameStarted = false;
+            changingDirection = false; // 重置方向改变标志
+            gameMessage.textContent = '';
+            gameMessage.className = '';
+            scoreDisplay.textContent = '分数: 0';
+            startButton.textContent = '开始游戏';
+            startButton.disabled = false; // 启用开始按钮
+
+            clearInterval(gameInterval); // 清除任何现有的游戏循环
+
+            // 创建初始蛇的位置
+            // 确保蛇头和身体不会立即重叠
+            for (let i = 0; i < INITIAL_SNAKE_LENGTH; i++) {
+                // 初始蛇向右，所以身体节段在蛇头左边
+                snake.push({ x: Math.floor(BOARD_SIZE / 2) - i, y: Math.floor(BOARD_SIZE / 2) });
+            }
+
+            generateFood(); // 生成第一个食物
+            drawGame(); // 绘制初始游戏板
+        }
+
+        // --- 绘制游戏元素 ---
+        function drawGame() {
+            gameBoard.innerHTML = ''; // 清空游戏板
+
+            // 绘制蛇
+            snake.forEach((segment, index) => {
+                const snakeElement = document.createElement('div');
+                snakeElement.style.gridColumnStart = segment.x + 1; // CSS Grid 是从 1 开始计数
+                snakeElement.style.gridRowStart = segment.y + 1;
+                snakeElement.classList.add('grid-cell', 'snake-body');
+                if (index === 0) { // 蛇头
+                    snakeElement.classList.add('snake-head');
+                }
+                gameBoard.appendChild(snakeElement);
+            });
+
+            // 绘制食物
+            const foodElement = document.createElement('div');
+            foodElement.style.gridColumnStart = food.x + 1;
+            foodElement.style.gridRowStart = food.y + 1;
+            foodElement.classList.add('grid-cell', 'food');
+            gameBoard.appendChild(foodElement);
+        }
+
+        // --- 生成食物 ---
+        function generateFood() {
+            let newFoodX, newFoodY;
+            let collisionWithSnake;
+
+            do {
+                newFoodX = Math.floor(Math.random() * BOARD_SIZE);
+                newFoodY = Math.floor(Math.random() * BOARD_SIZE);
+                // 确保食物不会生成在蛇的身体上
+                collisionWithSnake = snake.some(segment => segment.x === newFoodX && segment.y === newFoodY);
+            } while (collisionWithSnake);
+
+            food = { x: newFoodX, y: newFoodY };
+        }
+
+        // --- 更新游戏状态 (每帧调用) ---
+        function updateGame() {
+            if (isGameOver) return;
+
+            changingDirection = false; // 允许在下一帧改变方向
+
+            // 计算新的蛇头位置
+            const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+
+            // 检查碰撞 (墙壁或自身)
+            if (
+                head.x < 0 || head.x >= BOARD_SIZE || // 撞墙 (左右)
+                head.y < 0 || head.y >= BOARD_SIZE || // 撞墙 (上下)
+                checkSelfCollision(head) // 撞到自己
+            ) {
+                gameOver();
+                return;
+            }
+
+            snake.unshift(head); // 将新蛇头添加到蛇的数组前面
+
+            // 检查是否吃到食物
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                scoreDisplay.textContent = `分数: ${score}`;
+                generateFood(); // 重新生成食物
+            } else {
+                snake.pop(); // 如果没吃到食物，移除蛇尾，保持长度不变
+            }
+
+            drawGame(); // 重新绘制游戏
+        }
+
+        // --- 检查蛇头是否撞到自己的身体 ---
+        function checkSelfCollision(head) {
+            // 从蛇的第二个节段开始检查，因为蛇头不可能立即撞到自己
+            // 修复：当蛇的长度小于等于初始长度时，不检查碰撞，避免刚开始就结束
+            if (snake.length <= INITIAL_SNAKE_LENGTH && gameStarted) {
+                return false;
+            }
+            for (let i = 1; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // --- 游戏结束处理 ---
+        function gameOver() {
+            isGameOver = true;
+            clearInterval(gameInterval); // 停止游戏循环
+            gameMessage.textContent = `游戏结束！你的分数是 ${score}。获得了 ${GOLD_PER_GAME} 金币！`;
+            gameMessage.classList.add('message-lose');
+            startButton.textContent = '重新开始';
+            startButton.disabled = false; // 启用重新开始按钮
+            addGoldToMainGame(GOLD_PER_GAME); // 奖励金币
+        }
+
+        // --- 开始游戏 ---
+        function startGame() {
+            if (gameStarted) return; // 防止重复开始
+            gameStarted = true;
+            isGameOver = false;
+            startButton.disabled = true; // 游戏进行时禁用开始按钮
+            gameMessage.textContent = '';
+            gameInterval = setInterval(updateGame, GAME_SPEED); // 启动游戏循环
+        }
+
+        // --- 处理键盘输入改变方向 ---
+        function changeDirection(event) {
+            // 阻止页面滚动
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+                event.preventDefault();
+            }
+
+            if (isGameOver || !gameStarted || changingDirection) return; // 游戏结束、未开始或正在改变方向时不响应输入
+
+            const keyPressed = event.key;
+            const currentDirection = direction;
+
+            let newDirection = { ...currentDirection }; // 复制当前方向
+
+            // 防止立即反向移动 (例如，向右时不能立即向左)
+            if (keyPressed === 'ArrowUp' && currentDirection.y !== 1) {
+                newDirection = { x: 0, y: -1 };
+            } else if (keyPressed === 'ArrowDown' && currentDirection.y !== -1) {
+                newDirection = { x: 0, y: 1 };
+            } else if (keyPressed === 'ArrowLeft' && currentDirection.x !== 1) {
+                newDirection = { x: -1, y: 0 };
+            } else if (keyPressed === 'ArrowRight' && currentDirection.x !== -1) {
+                newDirection = { x: 1, y: 0 };
+            }
+
+            // 只有当方向确实改变时才更新
+            if (newDirection.x !== currentDirection.x || newDirection.y !== currentDirection.y) {
+                direction = newDirection;
+                changingDirection = true; // 设置标志，防止在同一帧内再次改变方向
+            }
+        }
+
+        // --- 处理虚拟方向键点击 ---
+        function handleVirtualDirection(newDirX, newDirY) {
+            if (isGameOver || !gameStarted || changingDirection) return;
+
+            const currentDirection = direction;
+            let newDirection = { x: newDirX, y: newDirY };
+
+            // 防止立即反向移动
+            if (newDirection.x === -currentDirection.x && newDirection.y === -currentDirection.y) {
+                return; // 尝试反向移动，忽略
+            }
+
+            // 只有当方向确实改变时才更新
+            if (newDirection.x !== currentDirection.x || newDirection.y !== currentDirection.y) {
+                direction = newDirection;
+                changingDirection = true; // 设置标志，防止在同一帧内再次改变方向
+            }
+        }
+
+
+        // --- 与主游戏交互：增加金币 (与扫雷页面相同) ---
+        function addGoldToMainGame(amount) {
+            const savedState = localStorage.getItem('catGameSaveState');
+            if (savedState) {
+                try {
+                    let cat = JSON.parse(savedState);
+                    if (typeof cat.gold === 'undefined') {
+                        cat.gold = 0; // 如果没有 gold 属性，初始化为 0
+                    }
+                    cat.gold += amount;
+                    localStorage.setItem('catGameSaveState', JSON.stringify(cat));
+                    console.log(`成功为主游戏增加了 ${amount} 金币。当前金币: ${cat.gold}`);
+                } catch (e) {
+                    console.error('解析主游戏存档失败，无法增加金币:', e);
+                }
+            } else {
+                console.warn('未找到主游戏存档，无法增加金币。');
+            }
+        }
+
+        // --- 事件监听器 ---
+        startButton.addEventListener('click', () => {
+            if (isGameOver || !gameStarted) { // 如果游戏结束或未开始，则重新初始化并开始
+                initGame();
+                startGame();
+            }
+        });
+        document.addEventListener('keydown', changeDirection); // 监听键盘方向键
+
+        // 虚拟方向键事件监听
+        upButton.addEventListener('click', () => handleVirtualDirection(0, -1));
+        downButton.addEventListener('click', () => handleVirtualDirection(0, 1));
+        leftButton.addEventListener('click', () => handleVirtualDirection(-1, 0));
+        rightButton.addEventListener('click', () => handleVirtualDirection(1, 0));
+
+
+        // 帮助按钮点击事件
+        helpButton.addEventListener('click', () => {
+            helpModal.style.display = 'block';
+        });
+
+        // 关闭按钮点击事件
+        closeButton.addEventListener('click', () => {
+            helpModal.style.display = 'none';
+        });
+
+        // 点击模态框外部关闭
+        window.addEventListener('click', (event) => {
+            if (event.target === helpModal) {
+                helpModal.style.display = 'none';
+            }
+        });
+
+        // --- 页面加载时初始化游戏 ---
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>

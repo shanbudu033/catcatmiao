@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小游戏中心</title>
+    <style>
+        /* 继承主页面的可爱风格 */
+        body {
+            font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #fdf3f8; /* 柔和的粉色背景 */
+            background-image: url('https://www.transparenttextures.com/patterns/light-honeycomb.png');
+            color: #555;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #ff69b4; /* 可爱的热粉色标题 */
+            margin-bottom: 30px;
+            font-size: 2.8em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        /* 返回主页按钮的样式 */
+        .back-button {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            background-color: #98fb98; /* 浅绿色按钮 */
+            color: #333;
+            border: none;
+            border-radius: 15px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 15px rgba(152, 251, 152, 0.3);
+            margin-top: 40px; /* 与游戏区域保持距离 */
+        }
+        .back-button:hover {
+            background-color: #66cd66;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 205, 102, 0.4);
+        }
+        .back-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(102, 90, 205, 0.3);
+        }
+
+        /* 游戏卡片容器 */
+        #game-cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px; /* 卡片之间的间距 */
+            max-width: 900px; /* 限制容器宽度 */
+            width: 100%;
+        }
+
+        /* 游戏卡片样式 */
+        .game-card {
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(255, 192, 203, 0.3);
+            padding: 25px;
+            text-align: center;
+            width: 250px; /* 卡片固定宽度 */
+            min-height: 280px; /* 最小高度，确保占位卡片也一致 */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid #ffe4e1;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .game-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(255, 192, 203, 0.5);
+        }
+
+        .game-card h2 {
+            color: #8a2be2; /* 蓝紫色标题 */
+            font-size: 1.8em;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .game-card .game-icon {
+            font-size: 4em; /* 图标大小 */
+            margin-bottom: 15px;
+            line-height: 1; /* 确保图标垂直居中 */
+        }
+
+        .game-card p {
+            font-size: 1.1em;
+            color: #777;
+            margin-bottom: 20px;
+            flex-grow: 1; /* 让描述占据剩余空间 */
+        }
+
+        .game-card .play-button {
+            background-color: #ffb6c1; /* 浅粉色按钮 */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.0em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(255, 182, 193, 0.3);
+        }
+        .game-card .play-button:hover {
+            background-color: #ff69b4;
+            transform: translateY(-2px);
+        }
+
+        /* 占位卡片特殊样式 */
+        .game-card.placeholder {
+            background-color: #f0f8ff; /* 浅蓝色背景 */
+            border: 2px dashed #add8e6; /* 虚线边框 */
+            cursor: default; /* 禁用点击手势 */
+            box-shadow: 0 8px 20px rgba(173, 216, 230, 0.3);
+        }
+        .game-card.placeholder:hover {
+            transform: none; /* 禁用悬停动画 */
+            box-shadow: 0 8px 20px rgba(173, 216, 230, 0.3); /* 保持阴影 */
+        }
+        .game-card.placeholder .play-button {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .game-card.placeholder .play-button:hover {
+            background-color: #cccccc;
+            transform: none;
+        }
+        .game-card.placeholder h2 {
+            color: #a0a0a0;
+        }
+        .game-card.placeholder .game-icon {
+            color: #d0d0d0;
+        }
+        .game-card.placeholder p {
+            color: #a0a0a0;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            #game-cards-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .game-card {
+                width: 80%; /* 小屏幕上卡片宽度更大 */
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>小游戏中心</h1>
+
+    <div id="game-cards-container">
+        <!-- 扫雷游戏卡片 -->
+        <div class="game-card" onclick="window.location.href='minesweeper.html'">
+            <div class="game-icon">💣</div>
+            <h2>扫雷</h2>
+            <p>经典益智游戏，挑战你的逻辑和运气！</p>
+            <button class="play-button">开始游戏</button>
+        </div>
+
+        <!-- 贪吃蛇游戏卡片 -->
+        <div class="game-card" onclick="window.location.href='snake.html'">
+            <div class="game-icon">🐍</div>
+            <h2>贪吃蛇</h2>
+            <p>经典街机游戏，挑战你的反应速度和策略！</p>
+            <button class="play-button">开始游戏</button>
+        </div>
+
+        <!-- Pong游戏卡片 -->
+        <div class="game-card" onclick="window.location.href='pong.html'">
+            <div class="game-icon">🏓</div> <!-- 乒乓球拍图标 -->
+            <h2>Pong</h2>
+            <p>怀旧街机对战，与电脑一决高下！</p>
+            <button class="play-button">开始游戏</button>
+        </div>
+
+        <!-- 打砖块游戏卡片 -->
+        <div class="game-card" onclick="window.location.href='breakout.html'">
+            <div class="game-icon">🧱</div> <!-- 砖块图标 -->
+            <h2>打砖块</h2>
+            <p>经典街机游戏，用球拍击碎所有砖块！</p>
+            <button class="play-button">开始游戏</button>
+        </div>
+
+        <!-- 打地鼠游戏卡片 -->
+        <div class="game-card" onclick="window.location.href='whac-a-mole.html'">
+            <div class="game-icon">🔨</div> <!-- 锤子图标 -->
+            <h2>打地鼠</h2>
+            <p>眼疾手快，敲打冒出的地鼠，挑战高分！</p>
+            <button class="play-button">开始游戏</button>
+        </div>
+
+        <!-- 空中闪避游戏卡片 -->
+        <div class="game-card" onclick="window.location.href='aerial-dodge.html'">
+            <div class="game-icon">✈️</div> <!-- 飞机图标 -->
+            <h2>空中闪避</h2>
+            <p>控制飞机躲避炮弹，挑战你的反应极限！</p>
+            <button class="play-button">开始游戏</button>
+        </div>
+
+        <!-- 五子棋游戏卡片 -->
+        <div class="game-card" onclick="window.location.href='gomoku.html'">
+            <div class="game-icon">⚫⚪</div> <!-- 黑白棋子图标 -->
+            <h2>五子棋</h2>
+            <p>经典双人对弈，挑战你的策略思维！</p>
+            <button class="play-button">开始游戏</button>
+        </div>
+
+        <!-- 占位游戏卡片 1 -->
+        <div class="game-card placeholder">
+            <div class="game-icon">❓</div>
+            <h2>敬请期待</h2>
+            <p>更多有趣的小游戏正在开发中...</p>
+            <button class="play-button" disabled>即将推出</button>
+        </div>
+
+        <!-- 你可以根据需要添加更多占位卡片 -->
+
+    </div>
+
+    <button onclick="window.location.href='catmoon.html'" class="back-button">返回我的云养猫</button>
+</body>
+</html>

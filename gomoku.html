@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五子棋小游戏</title>
+    <style>
+        /* 继承主页面的可爱风格 */
+        body {
+            font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #fdf3f8; /* 柔和的粉色背景 */
+            background-image: url('https://www.transparenttextures.com/patterns/light-honeycomb.png');
+            color: #555;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative; /* 用于定位帮助按钮 */
+        }
+        h1 {
+            color: #ff69b4; /* 可爱的热粉色标题 */
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        /* 返回游戏中心按钮的样式 */
+        .back-button {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            background-color: #98fb98; /* 浅绿色按钮 */
+            color: #333;
+            border: none;
+            border-radius: 15px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 15px rgba(152, 251, 152, 0.3);
+            margin-top: 30px; /* 与游戏区域保持距离 */
+        }
+        .back-button:hover {
+            background-color: #66cd66;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 205, 102, 0.4);
+        }
+        .back-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(102, 90, 205, 0.3);
+        }
+
+        /* 游戏容器样式 */
+        #game-container {
+            background-color: #ffffff;
+            border-radius: 25px;
+            box-shadow: 0 15px 30px rgba(255, 192, 203, 0.3);
+            padding: 30px;
+            text-align: center;
+            max-width: 500px; /* 适应游戏板大小 */
+            width: 90%;
+            margin-bottom: 20px;
+            border: 2px solid #ffe4e1;
+            position: relative; /* 用于定位帮助按钮 */
+        }
+
+        /* 游戏信息显示 */
+        #game-info {
+            display: flex;
+            flex-direction: column; /* 垂直排列 */
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ff69b4; /* 可爱的粉色 */
+            margin-bottom: 15px;
+            background-color: #fff0f5;
+            padding: 10px 15px;
+            border-radius: 12px;
+            border: 1px solid #ffebf0;
+        }
+        #game-info span {
+            margin-bottom: 5px;
+        }
+        #game-info span:last-child {
+            margin-bottom: 0;
+        }
+
+
+        /* Canvas 样式 */
+        #gameCanvas {
+            background-color: #deb887; /* 木质棋盘颜色 */
+            border: 2px solid #8b4513; /* 深棕色边框 */
+            margin: 20px auto;
+            display: block; /* 移除 canvas 默认的 inline 间距 */
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1); /* 内部阴影 */
+            border-radius: 5px;
+            max-width: 100%; /* 确保在小屏幕上不会溢出 */
+            height: auto; /* 高度自适应 */
+            cursor: pointer; /* 鼠标悬停时显示手型 */
+        }
+
+        /* 游戏消息样式 */
+        #game-message {
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #ff69b4;
+            min-height: 1.5em; /* 确保消息区域高度稳定 */
+        }
+        .message-win { color: #008000; } /* 胜利消息绿色 */
+        .message-draw { color: #808080; } /* 平局消息灰色 */
+
+        /* 按钮组 */
+        #game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap; /* 允许按钮换行 */
+        }
+
+        #startButton, #toggleModeButton {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            background-color: #87ceeb; /* 天蓝色 */
+            color: white;
+            border: none;
+            border-radius: 15px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 15px rgba(135, 206, 235, 0.3);
+        }
+        #startButton:hover, #toggleModeButton:hover {
+            background-color: #6a5acd;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(106, 90, 205, 0.4);
+        }
+        #startButton:active, #toggleModeButton:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(106, 90, 205, 0.3);
+        }
+
+        /* 帮助按钮样式 (与扫雷页面相同) */
+        #helpButton {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ffebcd; /* 杏仁色 */
+            color: #d2691e; /* 巧克力色 */
+            border: 2px solid #deb887; /* 沙棕色 */
+            font-size: 1.8em;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.2s, transform 0.2s;
+            z-index: 10; /* 确保在其他元素之上 */
+        }
+        #helpButton:hover {
+            background-color: #ffe4b5;
+            transform: scale(1.05);
+        }
+
+        /* 帮助卡片（模态框）样式 (与扫雷页面相同) */
+        #helpModal {
+            display: none; /* 默认隐藏 */
+            position: fixed;
+            z-index: 100; /* 确保在最上层 */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5); /* 半透明黑色背景 */
+            backdrop-filter: blur(5px); /* 模糊背景 */
+            -webkit-backdrop-filter: blur(5px); /* Safari 兼容 */
+            padding-top: 60px;
+        }
+
+        .help-modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; /* 居中显示 */
+            padding: 30px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 192, 203, 0.5);
+            position: relative;
+            animation: fadeIn 0.3s ease-out; /* 弹出动画 */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .help-modal-content h2 {
+            color: #ff69b4;
+            margin-top: 0;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .help-modal-content p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .help-modal-content ul {
+            text-align: left;
+            margin-bottom: 20px;
+            padding-left: 25px;
+        }
+        .help-modal-content ul li {
+            margin-bottom: 8px;
+            font-size: 1.05em;
+            color: #666;
+        }
+
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #ff69b4;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            #game-container {
+                padding: 20px;
+                width: 95%; /* 适应更小的屏幕 */
+            }
+            #gameCanvas {
+                width: 100%; /* 棋盘宽度适应容器 */
+                height: auto;
+            }
+            #game-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>五子棋小游戏</h1>
+    <div id="game-container">
+        <!-- 帮助按钮 -->
+        <button id="helpButton">?</button>
+
+        <div id="game-info">
+            <span id="current-player-display">当前玩家: 黑子</span>
+            <span id="game-message">点击“开始游戏”开始对战！</span>
+        </div>
+        <canvas id="gameCanvas" width="450" height="450"></canvas>
+        <div id="game-controls">
+            <button id="startButton">开始游戏</button>
+            <button id="toggleModeButton">切换模式: 人机对战</button>
+        </div>
+    </div>
+    <button onclick="window.location.href='game.html'" class="back-button">返回游戏中心</button>
+
+    <!-- 帮助模态框 -->
+    <div id="helpModal" class="modal">
+        <div class="help-modal-content">
+            <span class="close-button">&times;</span>
+            <h2>五子棋玩法说明</h2>
+            <p>五子棋是一种两人对弈的纯策略型棋类游戏，目标是先在棋盘上连成五子（横、竖、斜皆可）者获胜。</p>
+            <ul>
+                <li><strong>棋盘：</strong> 15x15 的棋盘。</li>
+                <li><strong>模式：</strong>
+                    <ul>
+                        <li><strong>双人对战：</strong> 两位玩家轮流落子，一位执黑子，一位执白子。</li>
+                        <li><strong>人机对战：：</strong> 你执黑子，电脑执白子。电脑会尝试形成有利棋型并阻挡你的威胁。</li>
+                    </ul>
+                </li>
+                <li><strong>目标：</strong> 率先在横向、纵向或斜向连成 <strong>五颗或更多</strong> 自己的棋子即可获胜。</li>
+                <li><strong>落子：：</strong> 点击棋盘上的任意交叉点即可放置棋子。已放置棋子的位置不能重复落子。</li>
+                <li><strong>平局：：</strong> 如果棋盘被填满，但没有任何一方达成五子连珠，则游戏为平局。</li>
+            </ul>
+            <p>祝你和你的朋友对战愉快！</p>
+        </div>
+    </div>
+
+    <script>
+        // --- 游戏配置 ---
+        const BOARD_SIZE = 15; // 棋盘大小 (15x15)
+        const CELL_SIZE = 30;  // 每个格子的大小 (像素)
+        const BOARD_PIXELS = BOARD_SIZE * CELL_SIZE; // 棋盘总像素大小
+        const STONE_RADIUS = CELL_SIZE / 2 - 2; // 棋子半径，留一点边距
+        const PLAYER1_COLOR = '#000000'; // 黑子
+        const PLAYER2_COLOR = '#ffffff'; // 白子 (电脑)
+        const EMPTY_CELL = 0;
+        const PLAYER1_STONE = 1; // 玩家1 (黑子)
+        const PLAYER2_STONE = 2; // 玩家2 (白子) / 电脑
+        const WIN_COUNT = 5; // 连成五子获胜
+        const AI_MOVE_DELAY = 500; // 电脑落子延迟 (ms)
+
+        // --- AI 评分常量 ---
+        const WIN_SCORE = 100000; // 立即获胜
+        const LIVE_FOUR_SCORE = 10000; // 活四 (如 _OOOO_)
+        const BLOCKED_FOUR_SCORE = 1000; // 冲四 (如 XOOOO_ 或 _OOOOX)
+        const LIVE_THREE_SCORE = 1000; // 活三 (如 _OOO_) - 与冲四同等重要，因为两步可成活四
+        const BLOCKED_THREE_SCORE = 100; // 眠三 (如 XOOO_ 或 _OOOX)
+        const LIVE_TWO_SCORE = 10; // 活二 (如 __OO__)
+        const BLOCKED_TWO_SCORE = 1; // 眠二 (如 XOO__ 或 __OOX)
+        const BLOCK_WEIGHT = 1.2; // 阻挡对手的威胁比自己制造同等威胁更重要
+
+        // --- DOM 元素 ---
+        const gameCanvas = document.getElementById('gameCanvas');
+        const ctx = gameCanvas.getContext('2d');
+        const currentPlayerDisplay = document.getElementById('current-player-display');
+        const gameMessage = document.getElementById('game-message');
+        const startButton = document.getElementById('startButton');
+        const toggleModeButton = document.getElementById('toggleModeButton');
+        const helpButton = document.getElementById('helpButton');
+        const helpModal = document.getElementById('helpModal');
+        const closeButton = document.querySelector('.close-button');
+
+        // 设置 Canvas 实际尺寸
+        gameCanvas.width = BOARD_PIXELS;
+        gameCanvas.height = BOARD_PIXELS;
+
+        // --- 游戏状态变量 ---
+        let board = []; // 2D 数组表示棋盘状态
+        let currentPlayer = PLAYER1_STONE; // 1: 黑子, 2: 白子
+        let isGameOver = false;
+        let gameStarted = false;
+        let moveCount = 0; // 记录落子数量，用于判断平局
+        let gameMode = 'pvc'; // 'pvp' (Player vs Player) or 'pvc' (Player vs Computer)
+        let isAITurn = false; // 标记是否是电脑回合
+
+        // --- 游戏初始化 ---
+        function initGame() {
+            // 清空棋盘
+            board = Array(BOARD_SIZE).fill(0).map(() => Array(BOARD_SIZE).fill(EMPTY_CELL));
+            currentPlayer = PLAYER1_STONE;
+            isGameOver = false;
+            gameStarted = false;
+            moveCount = 0;
+            isAITurn = false;
+
+            updateGameInfo(); // 更新显示信息
+            startButton.textContent = '开始游戏';
+            startButton.disabled = false;
+            toggleModeButton.disabled = false; // 确保模式切换按钮可用
+
+            drawBoard(); // 绘制初始空棋盘
+        }
+
+        // --- 更新游戏信息显示 ---
+        function updateGameInfo() {
+            let playerText = '';
+            if (gameMode === 'pvc') {
+                playerText = (currentPlayer === PLAYER1_STONE) ? '黑子 (你)' : '白子 (电脑)';
+            } else { // pvp
+                playerText = (currentPlayer === PLAYER1_STONE) ? '黑子' : '白子';
+            }
+            currentPlayerDisplay.textContent = `当前玩家: ${playerText}`;
+
+            if (!gameStarted && !isGameOver) {
+                gameMessage.textContent = '点击“开始游戏”开始对战！';
+            } else if (isGameOver) {
+                // 游戏结束消息由 gameOver 函数设置，这里不做修改
+            } else {
+                gameMessage.textContent = ''; // 游戏进行中清空消息
+            }
+            gameMessage.className = ''; // 清除可能的胜利/平局样式
+        }
+
+        // --- 绘制棋盘和棋子 ---
+        function drawBoard() {
+            // 清空画布，确保旧的棋子被擦除
+            ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+            // 绘制网格线
+            ctx.strokeStyle = '#8b4513'; // 深棕色线条
+            ctx.lineWidth = 1;
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                // 垂直线
+                ctx.beginPath();
+                ctx.moveTo(i * CELL_SIZE + CELL_SIZE / 2, CELL_SIZE / 2);
+                ctx.lineTo(i * CELL_SIZE + CELL_SIZE / 2, BOARD_PIXELS - CELL_SIZE / 2);
+                ctx.stroke();
+                // 水平线
+                ctx.beginPath();
+                ctx.moveTo(CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2);
+                ctx.lineTo(BOARD_PIXELS - CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2);
+                ctx.stroke();
+            }
+
+            // 绘制棋子
+            for (let r = 0; r < BOARD_SIZE; r++) {
+                for (let c = 0; c < BOARD_SIZE; c++) {
+                    if (board[r][c] !== EMPTY_CELL) {
+                        drawStone(r, c, board[r][c]);
+                    }
+                }
+            }
+        }
+
+        // 绘制单个棋子
+        function drawStone(row, col, player) {
+            const centerX = col * CELL_SIZE + CELL_SIZE / 2;
+            const centerY = row * CELL_SIZE + CELL_SIZE / 2;
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, STONE_RADIUS, 0, Math.PI * 2);
+            ctx.fillStyle = (player === PLAYER1_STONE) ? PLAYER1_COLOR : PLAYER2_COLOR;
+            ctx.fill();
+            ctx.closePath();
+
+            // 绘制棋子边框，让白子更明显
+            if (player === PLAYER2_STONE) {
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+        }
+
+        // --- 处理落子逻辑 ---
+        function placeStone(row, col) {
+            if (!gameStarted || isGameOver || board[row][col] !== EMPTY_CELL) {
+                return false; // 无法落子
+            }
+
+            board[row][col] = currentPlayer;
+            moveCount++;
+            drawBoard(); // 重新绘制棋盘
+
+            if (checkWin(row, col, currentPlayer)) {
+                gameOver(true);
+            } else if (moveCount === BOARD_SIZE * BOARD_SIZE) {
+                gameOver(false, true); // 平局
+            } else {
+                // 切换玩家
+                currentPlayer = (currentPlayer === PLAYER1_STONE) ? PLAYER2_STONE : PLAYER1_STONE;
+                updateGameInfo();
+
+                // 如果是人机模式且轮到电脑，则让电脑落子
+                if (gameMode === 'pvc' && currentPlayer === PLAYER2_STONE) {
+                    isAITurn = true;
+                    gameCanvas.style.cursor = 'not-allowed'; // 禁用玩家点击
+                    setTimeout(makeComputerMove, AI_MOVE_DELAY);
+                } else {
+                    isAITurn = false;
+                    gameCanvas.style.cursor = 'pointer'; // 启用玩家点击
+                }
+            }
+            return true; // 成功落子
+        }
+
+        // --- 处理点击事件 (玩家落子) ---
+        function handleClick(event) {
+            if (!gameStarted || isGameOver || isAITurn) return; // 游戏未开始/已结束/电脑回合时禁用点击
+
+            const rect = gameCanvas.getBoundingClientRect();
+            const scaleX = gameCanvas.width / rect.width;    // 缩放比例
+            const scaleY = gameCanvas.height / rect.height;  // 缩放比例
+
+            const mouseX = (event.clientX - rect.left) * scaleX;
+            const mouseY = (event.clientY - rect.top) * scaleY;
+
+            // 将鼠标坐标转换为棋盘格坐标
+            const col = Math.floor(mouseX / CELL_SIZE);
+            const row = Math.floor(mouseY / CELL_SIZE);
+
+            // 检查点击是否在棋盘范围内
+            if (row < 0 || row >= BOARD_SIZE || col < 0 || col >= BOARD_SIZE) {
+                return;
+            }
+
+            placeStone(row, col);
+        }
+
+        // --- 检查胜利条件 ---
+        function checkWin(row, col, player) {
+            // 定义所有需要检查的方向 (水平、垂直、两个对角线)
+            const directions = [
+                [0, 1],   // 水平
+                [1, 0],   // 垂直
+                [1, 1],   // 主对角线 (左上到右下)
+                [1, -1]   // 副对角线 (右上到左下)
+            ];
+
+            for (const [dr, dc] of directions) {
+                let count = 1; // 已经放置的当前棋子
+                // 检查一个方向
+                for (let i = 1; i < WIN_COUNT; i++) {
+                    const r = row + i * dr;
+                    const c = col + i * dc;
+                    if (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE && board[r][c] === player) {
+                        count++;
+                    } else {
+                        break;
+                    }
+                }
+                // 检查相反方向
+                for (let i = 1; i < WIN_COUNT; i++) {
+                    const r = row - i * dr;
+                    const c = col - i * dc;
+                    if (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE && board[r][c] === player) {
+                        count++;
+                    } else {
+                        break;
+                    }
+                }
+                if (count >= WIN_COUNT) {
+                    return true; // 找到五子连珠
+                }
+            }
+            return false; // 没有五子连珠
+        }
+
+        // --- AI 逻辑 ---
+
+        // 辅助函数：计算从指定点开始，在指定方向上连续的棋子数量和是否被阻挡
+        function countSequence(startR, startC, dr, dc, targetPlayer, opponentPlayer, board_state) {
+            let count = 0;
+            let blocked = false;
+            let r = startR;
+            let c = startC;
+
+            while (true) {
+                if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) {
+                    blocked = true; // 棋盘边缘阻挡
+                    break;
+                }
+                if (board_state[r][c] === targetPlayer) {
+                    count++;
+                } else if (board_state[r][c] === EMPTY_CELL) {
+                    break; // 空格，序列结束
+                } else if (board_state[r][c] === opponentPlayer) {
+                    blocked = true; // 对手棋子阻挡
+                    break;
+                }
+                r += dr;
+                c += dc;
+            }
+            return { count, blocked };
+        }
+
+        // 评估在 (row, col) 落子对 player 的得分
+        function getMoveScore(row, col, player) {
+            let totalScore = 0;
+            const opponent = (player === PLAYER1_STONE) ? PLAYER2_STONE : PLAYER1_STONE;
+
+            // 临时落子以评估
+            board[row][col] = player;
+
+            const directions = [
+                [0, 1],   // 水平
+                [1, 0],   // 垂直
+                [1, 1],   // 主对角线
+                [1, -1]   // 副对角线
+            ];
+
+            for (const [dr, dc] of directions) {
+                // 计算正方向的连续棋子
+                const { count: count1, blocked: blocked1 } = countSequence(row + dr, col + dc, dr, dc, player, opponent, board);
+                // 计算反方向的连续棋子
+                const { count: count2, blocked: blocked2 } = countSequence(row - dr, col - dc, -dr, -dc, player, opponent, board);
+
+                const totalStones = count1 + count2 + 1; // +1 是当前落子的棋子
+
+                // 根据棋型打分
+                if (totalStones >= WIN_COUNT) {
+                    totalScore += WIN_SCORE;
+                } else if (totalStones === WIN_COUNT - 1) { // 4子
+                    if (!blocked1 && !blocked2) { // 两端都开放 (活四)
+                        totalScore += LIVE_FOUR_SCORE;
+                    } else if (!blocked1 || !blocked2) { // 一端开放 (冲四)
+                        totalScore += BLOCKED_FOUR_SCORE;
+                    }
+                } else if (totalStones === WIN_COUNT - 2) { // 3子
+                    if (!blocked1 && !blocked2) { // 两端都开放 (活三)
+                        totalScore += LIVE_THREE_SCORE;
+                    } else if (!blocked1 || !blocked2) { // 一端开放 (眠三)
+                        totalScore += BLOCKED_THREE_SCORE;
+                    }
+                } else if (totalStones === WIN_COUNT - 3) { // 2子
+                    if (!blocked1 && !blocked2) { // 两端都开放 (活二)
+                        totalScore += LIVE_TWO_SCORE;
+                    } else if (!blocked1 || !blocked2) { // 一端开放 (眠二)
+                        totalScore += BLOCKED_TWO_SCORE;
+                    }
+                }
+            }
+
+            // 移除临时落子
+            board[row][col] = EMPTY_CELL;
+
+            return totalScore;
+        }
+
+        // 电脑落子逻辑
+        function makeComputerMove() {
+            if (!gameStarted || isGameOver || currentPlayer !== PLAYER2_STONE) return;
+
+            let bestMove = null;
+            let maxEvalScore = -Infinity; // 用于找到最高分
+
+            const AI_player = PLAYER2_STONE;
+            const human_player = PLAYER1_STONE;
+
+            const emptyCells = [];
+            for (let r = 0; r < BOARD_SIZE; r++) {
+                for (let c = 0; c < BOARD_SIZE; c++) {
+                    if (board[r][c] === EMPTY_CELL) {
+                        emptyCells.push({ r, c });
+                    }
+                }
+            }
+
+            if (emptyCells.length === 0) {
+                console.warn("AI: No empty cells to move!");
+                return;
+            }
+
+            // 遍历所有空位，评估每个落子点的得分
+            for (const { r, c } of emptyCells) {
+                // 评估自己落子后的得分 (进攻潜力)
+                const aiOffensiveScore = getMoveScore(r, c, AI_player);
+
+                // 评估对手落子后的得分 (阻挡对手威胁的潜力)
+                // 这里我们计算如果对手在这里落子，能获得多少分，然后乘以 BLOCK_WEIGHT 来表示阻挡的重要性
+                const humanThreatScore = getMoveScore(r, c, human_player);
+
+                // 综合得分：自己的进攻潜力 + 阻挡对手威胁的潜力
+                // BLOCK_WEIGHT > 1 意味着阻挡对手的威胁比自己制造同等威胁更重要
+                const currentMoveEval = aiOffensiveScore + humanThreatScore * BLOCK_WEIGHT;
+
+                // 如果找到更好的落子点，更新
+                if (currentMoveEval > maxEvalScore) {
+                    maxEvalScore = currentMoveEval;
+                    bestMove = { r, c };
+                }
+            }
+
+            // 如果没有找到最佳移动 (理论上不会发生，除非所有分数都一样)，则随机选择一个
+            if (!bestMove && emptyCells.length > 0) {
+                // 增加一个中心偏好，如果没有明显最佳解，倾向于中心
+                const centerR = Math.floor(BOARD_SIZE / 2);
+                const centerC = Math.floor(BOARD_SIZE / 2);
+                const nearbyCells = emptyCells.filter(cell =>
+                    Math.abs(cell.r - centerR) <= 2 && Math.abs(cell.c - centerC) <= 2
+                );
+                if (nearbyCells.length > 0) {
+                    bestMove = nearbyCells[Math.floor(Math.random() * nearbyCells.length)];
+                } else {
+                    bestMove = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                }
+            }
+
+
+            // 延迟后落子
+            setTimeout(() => {
+                placeStone(bestMove.r, bestMove.c);
+            }, AI_MOVE_DELAY);
+        }
+
+
+        // --- 游戏结束处理 ---
+        function gameOver(hasWinner, isDraw = false) {
+            isGameOver = true;
+            gameStarted = false; // 游戏结束，将 gameStarted 设为 false
+            isAITurn = false; // 确保电脑回合标记关闭
+            gameCanvas.style.cursor = 'default'; // 恢复默认鼠标样式
+
+            if (isDraw) {
+                gameMessage.textContent = '棋盘已满，平局！';
+                gameMessage.classList.add('message-draw');
+            } else if (hasWinner) {
+                let winnerText = '';
+                if (gameMode === 'pvc') {
+                    winnerText = (currentPlayer === PLAYER1_STONE) ? '你 (黑子)' : '电脑 (白子)';
+                } else {
+                    winnerText = (currentPlayer === PLAYER1_STONE) ? '黑子' : '白子';
+                }
+                gameMessage.textContent = `恭喜 ${winnerText} 获胜！`;
+                gameMessage.classList.add('message-win');
+            }
+            startButton.textContent = '重新开始';
+            startButton.disabled = false; // 启用重新开始按钮
+            toggleModeButton.disabled = false; // 游戏结束后可以切换模式
+        }
+
+        // --- 开始游戏 ---
+        function startGame() {
+            if (gameStarted) return; // 如果游戏已经在进行，则不重复开始
+
+            initGame(); // 重置所有游戏状态
+            gameStarted = true; // 标记游戏正在进行
+            startButton.disabled = true; // 游戏进行时禁用开始按钮
+            toggleModeButton.disabled = true; // 游戏进行时禁用模式切换
+            startButton.textContent = '游戏中...';
+            updateGameInfo(); // 更新显示信息
+
+            // 如果是人机模式且电脑先手 (白子)，则让电脑落子
+            // 默认黑子先手，所以电脑不会先手
+            // 如果想让电脑先手，可以在这里检查 currentPlayer === PLAYER2_STONE
+            // 但五子棋通常黑子先手，所以这里不需要特殊处理
+        }
+
+        // --- 切换游戏模式 ---
+        function toggleGameMode() {
+            if (gameStarted) return; // 游戏进行中不能切换模式
+
+            gameMode = (gameMode === 'pvc') ? 'pvp' : 'pvc';
+            toggleModeButton.textContent = `切换模式: ${gameMode === 'pvc' ? '双人对战' : '人机对战'}`;
+            initGame(); // 切换模式后重置游戏
+            updateGameInfo(); // 更新显示信息
+        }
+
+        // --- 事件监听器 ---
+        startButton.addEventListener('click', startGame);
+        gameCanvas.addEventListener('click', handleClick);
+        toggleModeButton.addEventListener('click', toggleGameMode);
+
+        // 帮助按钮点击事件
+        helpButton.addEventListener('click', () => {
+            helpModal.style.display = 'block';
+        });
+
+        // 关闭按钮点击事件
+        closeButton.addEventListener('click', () => {
+            helpModal.style.display = 'none';
+        });
+
+        // 点击模态框外部关闭
+        window.addEventListener('click', (event) => {
+            if (event.target === helpModal) {
+                helpModal.style.display = 'none';
+            }
+        });
+
+        // --- 页面加载时初始化游戏 ---
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
