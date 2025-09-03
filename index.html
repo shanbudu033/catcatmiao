@@ -5,9 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>我的云养猫</title>
     <style>
+        /* 字体定义 */
+        @font-face {
+            font-family: 'Miaowu80';
+            src: url('fonts/miaowu80.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         /* 可爱风格的CSS样式 */
         body {
-            font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* 更可爱的字体 */
+            font-family: 'Miaowu80', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* 统一使用 Miaowu80 字体 */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -214,29 +222,6 @@
         .actions button:hover:not(:disabled) { background-color: #6a5acd; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(106, 90, 205, 0.4); } /* 悬停效果 */
         .actions button:active:not(:disabled) { transform: translateY(0); box-shadow: 0 4px 10px rgba(106, 90, 205, 0.3); }
         .actions button:disabled { background-color: #cccccc; cursor: not-allowed; box-shadow: none; opacity: 0.7; }
-
-        /* 移除 #backpackBtn 的独立样式，使其继承 .actions button */
-        /* #backpackBtn {
-            background-color: #ffc0cb;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            margin: 8px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 1.05em;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            box-shadow: 0 6px 15px rgba(255, 192, 203, 0.3);
-        }
-        #backpackBtn:hover:not(:disabled) {
-            background-color: #ff69b4;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(255, 105, 180, 0.4);
-        }
-        #backpackBtn:active:not(:disabled) {
-            transform: translateY(0);
-            box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3);
-        } */
 
 
         #message { margin-top: 20px; font-size: 1.1em; color: #ff69b4; min-height: 25px; font-weight: bold; } /* 可爱的粉色消息 */
@@ -465,7 +450,7 @@
             display: none; /* 展开时隐藏短描述 */
         }
         .item-description-wrapper::after {
-            content: ' (点击查看详情)';
+            content: ' (...点击查看详情)'; /* 修改提示文本 */
             font-size: 0.75em;
             color: #aaa;
             margin-left: 5px;
@@ -1863,7 +1848,8 @@
 
                 const shortDesc = document.createElement('span');
                 shortDesc.className = 'short-desc';
-                shortDesc.textContent = itemDef.description.substring(0, 15) + (itemDef.description.length > 15 ? '...' : ''); // 显示前15个字符
+                // 修改：只显示前三个字
+                shortDesc.textContent = itemDef.description.substring(0, 3) + (itemDef.description.length > 3 ? '' : ''); 
                 itemDescWrapper.appendChild(shortDesc);
 
                 const fullDesc = document.createElement('span');
