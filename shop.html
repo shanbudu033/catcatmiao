@@ -5,9 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>猫咪商店</title>
     <style>
-        /* 基本样式，与 catmoon.html 保持一致 */
+        /* 字体定义 */
+        @font-face {
+            font-family: 'Miaowu80';
+            src: url('fonts/miaowu80.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* 基本样式，与主游戏页面保持一致 */
         body {
-            font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Miaowu80', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* 统一使用 Miaowu80 字体 */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -17,7 +25,7 @@
             background-image: url('https://www.transparenttextures.com/patterns/light-honeycomb.png');
             color: #555;
             flex-direction: column;
-            padding: 20px;
+            padding: 10px; /* 调整body的默认padding */
             box-sizing: border-box;
         }
 
@@ -31,6 +39,35 @@
             width: 90%;
             margin-bottom: 20px;
             border: 2px solid #ffe4e1;
+            
+            /* 新增：使容器可滚动并添加滚动条样式 */
+            display: flex;
+            flex-direction: column;
+            max-height: 95vh; /* 限制最大高度，使其内容溢出时可滚动 */
+            overflow-y: auto; /* 允许垂直滚动 */
+            -webkit-overflow-scrolling: touch; /* 改善iOS上的滑动体验 */
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: #ffb6c1 #fdf3f8; /* Firefox thumb and track color */
+        }
+
+        /* Webkit 浏览器（Chrome, Safari, Edge, Opera）的滚动条样式 */
+        .shop-container::-webkit-scrollbar {
+            width: 8px; /* 滚动条宽度 */
+        }
+
+        .shop-container::-webkit-scrollbar-track {
+            background: #fdf3f8; /* 滚动条轨道背景色 */
+            border-radius: 10px;
+        }
+
+        .shop-container::-webkit-scrollbar-thumb {
+            background-color: #ffb6c1; /* 滚动条滑块颜色 */
+            border-radius: 10px;
+            border: 2px solid #fdf3f8; /* 滑块边框，与轨道背景色一致 */
+        }
+
+        .shop-container::-webkit-scrollbar-thumb:hover {
+            background-color: #ff69b4; /* 滑块悬停颜色 */
         }
 
         h1 {
@@ -38,6 +75,7 @@
             margin-bottom: 20px;
             font-size: 2.8em;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0; /* 防止标题在滚动时缩小 */
         }
 
         .player-info {
@@ -50,6 +88,7 @@
             border-radius: 15px;
             display: inline-block;
             box-shadow: 0 2px 8px rgba(255, 192, 203, 0.4);
+            flex-shrink: 0; /* 防止信息在滚动时缩小 */
         }
 
         h2 {
@@ -59,6 +98,7 @@
             font-size: 2em;
             border-bottom: 2px solid #eee;
             padding-bottom: 10px;
+            flex-shrink: 0; /* 防止副标题在滚动时缩小 */
         }
 
         .item-grid {
@@ -68,6 +108,7 @@
             margin-top: 20px;
             padding-bottom: 20px;
             border-bottom: 1px dashed #ffebf0; /* 分隔线 */
+            flex-grow: 1; /* 允许网格占据可用空间 */
         }
         .item-grid:last-of-type {
             border-bottom: none; /* 最后一个网格下方没有分隔线 */
@@ -160,6 +201,7 @@
             color: #ff69b4;
             min-height: 25px;
             font-weight: bold;
+            flex-shrink: 0; /* 防止消息在滚动时缩小 */
         }
         .warning { color: #ff4500 !important; } /* 警告消息颜色 */
 
@@ -174,6 +216,7 @@
             font-size: 1.1em;
             transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
             box-shadow: 0 6px 15px rgba(135, 206, 235, 0.3);
+            flex-shrink: 0; /* 防止按钮在滚动时缩小 */
         }
         .back-button:hover {
             background-color: #6a5acd;
@@ -184,48 +227,141 @@
         /* 响应式调整 */
         @media (max-width: 768px) {
             .shop-container {
-                padding: 20px;
+                padding: 15px; /* 减小容器内边距 */
+                max-height: 98vh; /* 调整最大高度 */
             }
             h1 {
-                font-size: 2.2em;
+                font-size: 2em; /* 缩小标题 */
+                margin-bottom: 15px;
+            }
+            .player-info {
+                font-size: 1.1em;
+                padding: 8px 15px;
+                margin-bottom: 20px;
             }
             h2 {
-                font-size: 1.6em;
+                font-size: 1.5em; /* 缩小副标题 */
+                margin-top: 20px;
+                margin-bottom: 10px;
+                padding-bottom: 8px;
             }
             .item-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 15px;
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* 更紧凑的网格 */
+                gap: 10px; /* 减小网格间距 */
+                margin-top: 15px;
+                padding-bottom: 15px;
             }
             .shop-item {
-                padding: 10px;
+                padding: 8px; /* 减小商品项内边距 */
+                border-radius: 12px;
             }
             .shop-item img {
-                width: 60px;
-                height: 60px;
+                width: 50px; /* 缩小图片尺寸 */
+                height: 50px;
+                margin-bottom: 8px;
             }
             .shop-item h3 {
-                font-size: 1.1em;
+                font-size: 1em; /* 缩小商品名称字体 */
+                margin: 5px 0 3px;
             }
             .shop-item p.description {
-                font-size: 0.8em;
-                min-height: 35px;
+                font-size: 0.75em; /* 缩小描述字体 */
+                min-height: 30px; /* 调整最小高度 */
+                margin-bottom: 8px;
             }
             .shop-item p.price {
-                font-size: 1em;
+                font-size: 0.9em; /* 缩小价格字体 */
+                margin-bottom: 10px;
             }
             .shop-item button {
-                padding: 8px 15px;
-                font-size: 0.9em;
+                padding: 6px 12px;
+                font-size: 0.85em;
+                border-radius: 10px;
+            }
+            #message {
+                margin-top: 20px;
+                font-size: 1em;
+                min-height: 20px;
             }
             .back-button {
-                padding: 10px 20px;
+                padding: 8px 18px;
+                margin-top: 20px;
                 font-size: 1em;
             }
         }
 
         @media (max-width: 480px) {
+            .shop-container {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 10px;
+            }
+            .player-info {
+                font-size: 1em;
+                padding: 6px 10px;
+                margin-bottom: 15px;
+            }
+            h2 {
+                font-size: 1.3em;
+                margin-top: 15px;
+                margin-bottom: 8px;
+                padding-bottom: 6px;
+            }
             .item-grid {
                 grid-template-columns: 1fr; /* 在非常小的屏幕上显示为单列 */
+                gap: 10px;
+                margin-top: 10px;
+                padding-bottom: 10px;
+            }
+            .shop-item {
+                padding: 10px; /* 单列时可以适当增加内边距 */
+                flex-direction: row; /* 单列时改为横向布局 */
+                justify-content: flex-start;
+                align-items: center;
+                text-align: left;
+            }
+            .shop-item img {
+                width: 40px; /* 进一步缩小图片 */
+                height: 40px;
+                margin-right: 10px; /* 图片右侧间距 */
+                margin-bottom: 0; /* 移除底部间距 */
+                flex-shrink: 0; /* 防止图片缩小 */
+            }
+            .shop-item-details { /* 新增一个div来包裹文本内容 */
+                display: flex;
+                flex-direction: column;
+                flex-grow: 1;
+            }
+            .shop-item h3 {
+                font-size: 0.9em;
+                margin: 0; /* 移除默认margin */
+            }
+            .shop-item p.description {
+                font-size: 0.7em;
+                min-height: auto; /* 自动高度 */
+                margin: 2px 0;
+            }
+            .shop-item p.price {
+                font-size: 0.8em;
+                margin: 0;
+            }
+            .shop-item button {
+                width: auto; /* 按钮宽度自适应 */
+                padding: 5px 10px;
+                font-size: 0.8em;
+                margin-left: 10px; /* 按钮左侧间距 */
+                flex-shrink: 0; /* 防止按钮缩小 */
+            }
+            #message {
+                margin-top: 15px;
+                font-size: 0.9em;
+            }
+            .back-button {
+                padding: 6px 15px;
+                margin-top: 15px;
+                font-size: 0.9em;
             }
         }
     </style>
@@ -258,6 +394,7 @@
 
         // 商品定义 - **重要：请将 image 链接替换为实际的图片链接！**
         // 对于时装类 (cosmetic) 物品，image 链接应为**透明背景**的**时装配件图片**。
+        // **重要：部署到国内平台时，请确保将所有图片链接替换为本地路径，例如 'images/small_food.png'**
         const ITEM_DEFINITIONS = {
             // Consumables (物品类)
             'small_food_can': {
@@ -267,7 +404,7 @@
                 description: '增加少量饥饿度。',
                 effect: { hunger: 20, happiness: 5 },
                 price: 10,
-                image: 'https://i.imgur.com/example_small_food.png' // 替换为实际图片
+                image: 'images/small_food.png' // 替换为实际图片
             },
             'big_food_can': {
                 id: 'big_food_can',
@@ -276,7 +413,7 @@
                 description: '大幅增加饥饿度。',
                 effect: { hunger: 50, happiness: 10, life: 5 },
                 price: 30,
-                image: 'https://i.imgur.com/example_big_food.png' // 替换为实际图片
+                image: 'images/big_food.png' // 替换为实际图片
             },
             'toy_mouse': {
                 id: 'toy_mouse',
@@ -285,7 +422,7 @@
                 description: '增加少量幸福度，消耗少量精力。',
                 effect: { happiness: 30, energy: -10 },
                 price: 15,
-                image: 'https://i.imgur.com/example_toy_mouse.png' // 替换为实际图片
+                image: 'images/toy_mouse.png' // 替换为实际图片
             },
             'cat_shampoo': {
                 id: 'cat_shampoo',
@@ -294,7 +431,7 @@
                 description: '大幅增加清洁度。',
                 effect: { cleanliness: 50, happiness: 5 },
                 price: 20,
-                image: 'https://i.imgur.com/example_shampoo.png' // 替换为实际图片
+                image: 'images/cat_shampoo.png' // 替换为实际图片
             },
             'energy_drink': {
                 id: 'energy_drink',
@@ -303,7 +440,7 @@
                 description: '恢复大量精力。',
                 effect: { energy: 40, hunger: -5 },
                 price: 25,
-                image: 'https://i.imgur.com/example_energy_drink.png' // 替换为实际图片
+                image: 'images/energy_drink.png' // 替换为实际图片
             },
             'life_potion': {
                 id: 'life_potion',
@@ -312,7 +449,7 @@
                 description: '恢复少量生命值。',
                 effect: { life: 30 },
                 price: 40,
-                image: 'https://i.imgur.com/example_life_potion.png' // 替换为实际图片
+                image: 'images/life_potion.png' // 替换为实际图片
             },
             'super_food': {
                 id: 'super_food',
@@ -321,7 +458,7 @@
                 description: '全面提升猫咪状态！',
                 effect: { hunger: 40, happiness: 20, life: 10, cleanliness: 20, energy: 20 },
                 price: 80,
-                image: 'https://i.imgur.com/example_super_food.png' // 替换为实际图片
+                image: 'images/super_food.png' // 替换为实际图片
             },
             'health_kit': {
                 id: 'health_kit',
@@ -330,7 +467,7 @@
                 description: '快速恢复大量生命值。',
                 effect: { life: 50, happiness: 10 },
                 price: 60,
-                image: 'https://i.imgur.com/example_health_kit.png' // 替换为实际图片
+                image: 'images/health_kit.png' // 替换为实际图片
             },
             'happy_ball': {
                 id: 'happy_ball',
@@ -339,7 +476,7 @@
                 description: '让猫咪瞬间开心起来！',
                 effect: { happiness: 50, energy: -15 },
                 price: 35,
-                image: 'https://i.imgur.com/example_happy_ball.png' // 替换为实际图片
+                image: 'images/happy_ball.png' // 替换为实际图片
             },
             // 新增猫咪玩具
             'teasing_stick': {
@@ -349,7 +486,7 @@
                 description: '和猫咪玩耍，增加幸福感，消耗少量精力。',
                 effect: { happiness: 25, energy: -10 },
                 price: 12,
-                image: 'https://i.imgur.com/example_teasing_stick.png' // 替换为实际图片
+                image: 'images/teasing_stick.png' // 替换为实际图片
             },
             'catnip': {
                 id: 'catnip',
@@ -358,7 +495,7 @@
                 description: '让猫咪兴奋不已，大幅增加幸福感，略微消耗精力。',
                 effect: { happiness: 40, energy: -15, life: 5 },
                 price: 20,
-                image: 'https://i.imgur.com/example_catnip.png' // 替换为实际图片
+                image: 'images/catnip.png' // 替换为实际图片
             },
             'electric_mouse': {
                 id: 'electric_mouse',
@@ -367,7 +504,7 @@
                 description: '猫咪最爱的追逐游戏，增加幸福感，消耗精力。',
                 effect: { happiness: 35, energy: -20 },
                 price: 28,
-                image: 'https://i.imgur.com/example_electric_mouse.png' // 替换为实际图片
+                image: 'images/electric_mouse.png' // 替换为实际图片
             },
 
             // Cosmetics (时装类) - **请确保这些图片是透明背景的配件图片！**
@@ -377,7 +514,7 @@
                 type: 'cosmetic',
                 description: '给猫咪戴上可爱的草帽。',
                 price: 50,
-                image: 'https://i.imgur.com/example_straw_hat.png' // 替换为实际透明PNG
+                image: 'images/straw_hat.png' // 替换为实际透明PNG
             },
             'glasses': {
                 id: 'glasses',
@@ -385,7 +522,7 @@
                 type: 'cosmetic',
                 description: '让猫咪看起来更聪明。',
                 price: 70,
-                image: 'https://i.imgur.com/example_glasses.png' // 替换为实际透明PNG
+                image: 'images/glasses.png' // 替换为实际透明PNG
             },
             'scarf': {
                 id: 'scarf',
@@ -393,7 +530,7 @@
                 type: 'cosmetic',
                 description: '给猫咪保暖。',
                 price: 60,
-                image: 'https://i.imgur.com/example_scarf.png' // 替换为实际透明PNG
+                image: 'images/scarf.png' // 替换为实际透明PNG
             },
             'crown': {
                 id: 'crown',
@@ -401,7 +538,7 @@
                 type: 'cosmetic',
                 description: '让猫咪成为小王子/公主。',
                 price: 120,
-                image: 'https://i.imgur.com/example_crown.png' // 替换为实际透明PNG
+                image: 'images/crown.png' // 替换为实际透明PNG
             },
             'bow_tie': {
                 id: 'bow_tie',
@@ -409,7 +546,7 @@
                 type: 'cosmetic',
                 description: '优雅的猫咪配饰。',
                 price: 40,
-                image: 'https://i.imgur.com/example_bow_tie.png' // 替换为实际透明PNG
+                image: 'images/bow_tie.png' // 替换为实际透明PNG
             },
             'cape': {
                 id: 'cape',
@@ -417,7 +554,7 @@
                 type: 'cosmetic',
                 description: '让猫咪拥有英雄气概。',
                 price: 100,
-                image: 'https://i.imgur.com/example_cape.png' // 替换为实际透明PNG
+                image: 'images/cape.png' // 替换为实际透明PNG
             },
             'party_hat': {
                 id: 'party_hat',
@@ -425,7 +562,7 @@
                 type: 'cosmetic',
                 description: '为猫咪的生日派对准备！',
                 price: 80,
-                image: 'https://i.imgur.com/example_party_hat.png' // 替换为实际透明PNG
+                image: 'images/party_hat.png' // 替换为实际透明PNG
             },
             'flower_collar': {
                 id: 'flower_collar',
@@ -433,7 +570,7 @@
                 type: 'cosmetic',
                 description: '让猫咪更具田园风情。',
                 price: 55,
-                image: 'https://i.imgur.com/example_flower_collar.png' // 替换为实际透明PNG
+                image: 'images/flower_collar.png' // 替换为实际透明PNG
             },
             // 新增拟人猫猫服装
             'maid_outfit': {
@@ -442,7 +579,7 @@
                 type: 'cosmetic',
                 description: '可爱的女仆装，让猫咪为你服务！',
                 price: 150,
-                image: 'https://i.imgur.com/example_maid_outfit.png' // 替换为实际透明PNG (女仆装配件)
+                image: 'images/maid_outfit.png' // 替换为实际透明PNG (女仆装配件)
             },
             'butler_outfit': {
                 id: 'butler_outfit',
@@ -450,7 +587,7 @@
                 type: 'cosmetic',
                 description: '帅气的男仆装，尽显绅士风范。',
                 price: 150,
-                image: 'https://i.imgur.com/example_butler_outfit.png' // 替换为实际透明PNG (男仆装配件)
+                image: 'images/butler_outfit.png' // 替换为实际透明PNG (男仆装配件)
             },
             'jeans': {
                 id: 'jeans',
@@ -458,7 +595,7 @@
                 type: 'cosmetic',
                 description: '时尚百搭的牛仔裤，休闲又帅气。',
                 price: 90,
-                image: 'https://i.imgur.com/example_jeans.png' // 替换为实际透明PNG (牛仔裤配件)
+                image: 'images/jeans.png' // 替换为实际透明PNG (牛仔裤配件)
             },
             'dress': {
                 id: 'dress',
@@ -466,7 +603,7 @@
                 type: 'cosmetic',
                 description: '优雅的小礼裙，适合参加派对。',
                 price: 130,
-                image: 'https://i.imgur.com/example_dress.png' // 替换为实际透明PNG (小礼裙配件)
+                image: 'images/dress.png' // 替换为实际透明PNG (小礼裙配件)
             },
             'suit': {
                 id: 'suit',
@@ -474,7 +611,7 @@
                 type: 'cosmetic',
                 description: '正式的小西装，出席重要场合。',
                 price: 140,
-                image: 'https://i.imgur.com/example_suit.png' // 替换为实际透明PNG (小西装配件)
+                image: 'images/suit.png' // 替换为实际透明PNG (小西装配件)
             }
         };
 
@@ -609,19 +746,25 @@
                 itemImage.alt = itemDef.name;
                 itemDiv.appendChild(itemImage);
 
+                // 新增一个div来包裹文本内容，方便小屏幕下的flex布局
+                const itemDetailsDiv = document.createElement('div');
+                itemDetailsDiv.className = 'shop-item-details';
+
                 const itemName = document.createElement('h3');
                 itemName.textContent = itemDef.name;
-                itemDiv.appendChild(itemName);
+                itemDetailsDiv.appendChild(itemName);
 
                 const itemDescription = document.createElement('p');
                 itemDescription.className = 'description';
                 itemDescription.textContent = itemDef.description;
-                itemDiv.appendChild(itemDescription);
+                itemDetailsDiv.appendChild(itemDescription);
 
                 const itemPrice = document.createElement('p');
                 itemPrice.className = 'price';
                 itemPrice.textContent = `价格: ${itemDef.price} 金币`;
-                itemDiv.appendChild(itemPrice);
+                itemDetailsDiv.appendChild(itemPrice);
+
+                itemDiv.appendChild(itemDetailsDiv); // 将详情div添加到itemDiv
 
                 const buyButton = document.createElement('button');
                 buyButton.textContent = '购买';
@@ -682,7 +825,7 @@
 
             // 返回游戏按钮事件
             backToGameBtn.addEventListener('click', () => {
-                window.location.href = 'catmoon.html'; // 跳转回主游戏页面
+                window.location.href = 'index.html'; // 跳转回主游戏页面
             });
         });
     </script>
