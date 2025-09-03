@@ -20,8 +20,9 @@
             position: relative;
             padding: 20px; /* 增加一些内边距 */
             box-sizing: border-box; /* 盒模型调整 */
-            /* 注意：不建议直接在body上设置 overflow: hidden; 因为如果内容真的溢出，会被直接截断。
-               更好的做法是让内容本身适应，或者让特定区域（如模态框）内部滚动。 */
+            /* 尝试强制不滚动。如果内容真的溢出，会被截断，但可以避免滚动条。
+               请注意，这可能导致部分内容在极小屏幕上不可见。 */
+            overflow: hidden; 
         }
 
         /* 实时时钟的样式 */
@@ -49,8 +50,7 @@
             width: 90%;
             margin-bottom: 20px;
             border: 2px solid #ffe4e1; /* 浅粉色边框 */
-            flex-shrink: 1; /* 允许容器在空间不足时缩小 */
-            flex-grow: 0; /* 不允许容器在有额外空间时增长 */
+            /* 移除 flex-shrink/grow，让内容决定其大小，但会受 max-width/width 限制 */
             /* overflow-y: auto; /* 如果容器内容过多，允许容器内部滚动，而不是整个页面 */
         }
 
@@ -66,20 +66,17 @@
             margin-bottom: 20px;
         }
 
-        /* 猫咪图片容器样式 */
+        /* 猫咪图片容器样式 - 固定大小 */
         #catImageContainer {
             position: relative; /* 相对定位，用于子元素的绝对定位 */
-            width: 100%;
-            max-width: 300px; /* 保持与原图片相同的最大宽度 */
-            /* 移除固定高度，改为更灵活的vh单位 */
-            height: 35vh; /* 使用视口高度，更具弹性 */
-            min-height: 150px; /* 最小高度，防止图片容器过小 */
-            max-height: 300px; /* 最大高度，防止图片容器过大 */
+            width: 250px; /* 固定宽度 */
+            height: 250px; /* 固定高度 */
             margin: 0 auto 25px;
             border-radius: 15px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
             border: 5px solid #ffe4e1;
             overflow: hidden; /* 隐藏超出容器的部分 */
+            flex-shrink: 0; /* 不允许缩小 */
         }
 
         #baseCatImage {
@@ -415,173 +412,73 @@
                 padding: 10px; /* 减小body内边距 */
             }
             .container {
-                padding: 20px;
+                padding: 15px; /* 减小容器内边距 */
                 border-radius: 15px;
                 margin-bottom: 10px; /* 减小容器底部外边距 */
             }
             h1 {
-                font-size: 2em;
-                margin-bottom: 15px; /* 减小标题底部外边距 */
+                font-size: 1.8em; /* 缩小标题 */
+                margin-bottom: 10px; /* 减小标题底部外边距 */
             }
             .container > div:nth-of-type(1) { /* 猫咪名字显示区域 */
-                margin-bottom: 15px !important; /* 减小底部外边距 */
+                margin-bottom: 10px !important; /* 减小底部外边距 */
             }
             #catNameDisplay, .container > div:nth-of-type(1) span:first-child {
-                font-size: 1.3em !important; /* 调整字体大小 */
-            }
-            #changeNameBtn {
-                padding: 4px 10px;
-                font-size: 0.8em;
-                margin-left: 8px;
-            }
-
-            #catImageContainer {
-                height: 25vh; /* 进一步减小图片容器高度 */
-                min-height: 120px;
-                max-height: 250px;
-                margin-bottom: 15px; /* 减小图片容器底部外边距 */
-            }
-            .stats {
-                margin-bottom: 15px; /* 减小统计区域底部外边距 */
-            }
-            .stats p {
-                margin: 5px 0; /* 减小统计项间距 */
-                padding: 8px 10px; /* 减小统计项内边距 */
-                font-size: 1em; /* 调整统计项字体大小 */
-            }
-            .actions button, #gameOverActions button {
-                width: calc(50% - 16px); /* 小屏幕上按钮两列显示 */
-                font-size: 1em;
-                padding: 10px 15px;
-                margin: 5px; /* 减小按钮外边距 */
-            }
-            #gameOverActions {
-                gap: 10px;
-                margin-top: 20px; /* 减小游戏结束操作区域顶部外边距 */
-            }
-            #message {
-                margin-top: 15px;
-                font-size: 1em;
-            }
-            #realTimeClock {
-                padding: 6px 10px;
-                font-size: 0.85em;
-                top: 10px;
-                right: 10px;
-            }
-            .modal-content {
-                width: 95%;
-                margin: 2% auto;
-                padding: 20px;
-            }
-            .inventory-items-container {
-                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-                gap: 10px;
-            }
-            .inventory-item img {
-                width: 50px;
-                height: 50px;
-            }
-            .inventory-item h4 {
-                font-size: 1em;
-            }
-            .inventory-item p {
-                font-size: 0.8em;
-            }
-            .inventory-item button {
-                padding: 6px 10px;
-                font-size: 0.8em;
-            }
-        }
-
-        /* 针对非常短的屏幕（例如横屏手机或小平板）进一步优化 */
-        @media (max-height: 700px) and (max-width: 900px) {
-            body {
-                padding: 5px; /* 进一步减小body内边距 */
-            }
-            .container {
-                padding: 15px;
-                margin-bottom: 5px;
-            }
-            h1 {
-                font-size: 1.8em;
-                margin-bottom: 10px;
-            }
-            .container > div:nth-of-type(1) { /* 猫咪名字显示区域 */
-                margin-bottom: 10px !important;
-            }
-            #catNameDisplay, .container > div:nth-of-type(1) span:first-child {
-                font-size: 1.2em !important;
+                font-size: 1.2em !important; /* 调整字体大小 */
             }
             #changeNameBtn {
                 padding: 3px 8px;
                 font-size: 0.75em;
                 margin-left: 5px;
             }
+
+            /* 猫咪图片容器保持固定大小，但其外边距可以调整 */
             #catImageContainer {
-                height: 20vh; /* 再次减小图片容器高度 */
-                min-height: 100px;
-                max-height: 200px;
-                margin-bottom: 10px;
+                width: 200px; /* 在小屏幕上进一步缩小固定图片大小 */
+                height: 200px; /* 在小屏幕上进一步缩小固定图片大小 */
+                margin-bottom: 10px; /* 减小图片容器底部外边距 */
             }
             .stats {
-                margin-bottom: 10px;
+                margin-bottom: 10px; /* 减小统计区域底部外边距 */
             }
             .stats p {
-                margin: 3px 0;
-                padding: 6px 8px;
-                font-size: 0.9em;
-            }
-            #lastViewedTimeDisplay {
-                margin-top: 8px;
-                font-size: 0.8em;
+                margin: 5px 0; /* 减小统计项间距 */
+                padding: 6px 8px; /* 减小统计项内边距 */
+                font-size: 0.9em; /* 调整统计项字体大小 */
             }
             .actions button, #gameOverActions button {
-                padding: 8px 12px;
+                width: calc(50% - 10px); /* 小屏幕上按钮两列显示，减小间距 */
                 font-size: 0.9em;
-                margin: 3px;
+                padding: 8px 12px;
+                margin: 4px; /* 减小按钮外边距 */
             }
             #gameOverActions {
                 gap: 8px;
-                margin-top: 15px;
+                margin-top: 15px; /* 减小游戏结束操作区域顶部外边距 */
             }
             #message {
                 margin-top: 10px;
                 font-size: 0.9em;
+                min-height: 20px; /* 减小最小高度 */
             }
             #realTimeClock {
-                padding: 4px 7px;
-                font-size: 0.75em;
+                padding: 5px 8px;
+                font-size: 0.8em;
                 top: 8px;
                 right: 8px;
             }
-            .modal {
-                padding-top: 20px; /* 减小模态框顶部内边距 */
-            }
             .modal-content {
-                margin: 1% auto; /* 减小模态框顶部外边距 */
+                width: 95%;
+                margin: 2% auto;
                 padding: 15px;
-                max-height: 95vh; /* 确保模态框内容在短屏幕下也能适应 */
-            }
-            .modal-content h2 {
-                font-size: 1.6em;
-                margin-bottom: 10px;
-            }
-            .modal-content h3 {
-                font-size: 1.2em;
-                margin-top: 15px;
-                margin-bottom: 8px;
             }
             .inventory-items-container {
                 grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
                 gap: 8px;
             }
-            .inventory-item {
-                padding: 10px;
-            }
             .inventory-item img {
-                width: 40px;
-                height: 40px;
+                width: 45px;
+                height: 45px;
             }
             .inventory-item h4 {
                 font-size: 0.9em;
@@ -592,6 +489,108 @@
             .inventory-item button {
                 padding: 5px 8px;
                 font-size: 0.75em;
+            }
+        }
+
+        /* 针对非常短的屏幕（例如横屏手机或小平板）进一步优化 */
+        @media (max-height: 650px) and (max-width: 900px) {
+            body {
+                padding: 5px; /* 进一步减小body内边距 */
+            }
+            .container {
+                padding: 10px; /* 进一步减小容器内边距 */
+                margin-bottom: 3px;
+            }
+            h1 {
+                font-size: 1.6em;
+                margin-bottom: 8px;
+            }
+            .container > div:nth-of-type(1) { /* 猫咪名字显示区域 */
+                margin-bottom: 8px !important;
+            }
+            #catNameDisplay, .container > div:nth-of-type(1) span:first-child {
+                font-size: 1.1em !important;
+            }
+            #changeNameBtn {
+                padding: 2px 6px;
+                font-size: 0.7em;
+                margin-left: 4px;
+            }
+            /* 猫咪图片容器保持固定大小，但其外边距可以调整 */
+            #catImageContainer {
+                width: 180px; /* 再次缩小固定图片大小 */
+                height: 180px; /* 再次缩小固定图片大小 */
+                margin-bottom: 8px;
+            }
+            .stats {
+                margin-bottom: 8px;
+            }
+            .stats p {
+                margin: 2px 0;
+                padding: 5px 6px;
+                font-size: 0.85em;
+            }
+            #lastViewedTimeDisplay {
+                margin-top: 5px;
+                font-size: 0.75em;
+            }
+            .actions button, #gameOverActions button {
+                padding: 6px 10px;
+                font-size: 0.8em;
+                margin: 2px;
+            }
+            #gameOverActions {
+                gap: 6px;
+                margin-top: 10px;
+            }
+            #message {
+                margin-top: 8px;
+                font-size: 0.8em;
+                min-height: 18px;
+            }
+            #realTimeClock {
+                padding: 3px 6px;
+                font-size: 0.7em;
+                top: 5px;
+                right: 5px;
+            }
+            .modal {
+                padding-top: 10px; /* 减小模态框顶部内边距 */
+            }
+            .modal-content {
+                margin: 0.5% auto; /* 减小模态框顶部外边距 */
+                padding: 10px;
+                max-height: 98vh; /* 确保模态框内容在短屏幕下也能适应 */
+            }
+            .modal-content h2 {
+                font-size: 1.4em;
+                margin-bottom: 8px;
+            }
+            .modal-content h3 {
+                font-size: 1.1em;
+                margin-top: 10px;
+                margin-bottom: 6px;
+            }
+            .inventory-items-container {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+                gap: 6px;
+            }
+            .inventory-item {
+                padding: 8px;
+            }
+            .inventory-item img {
+                width: 35px;
+                height: 35px;
+            }
+            .inventory-item h4 {
+                font-size: 0.8em;
+            }
+            .inventory-item p {
+                font-size: 0.7em;
+            }
+            .inventory-item button {
+                padding: 4px 6px;
+                font-size: 0.7em;
             }
         }
     </style>
