@@ -250,7 +250,7 @@
             }
         }
 
-        @media (max-width: 550px) { /* 针对更小的手机屏幕，仍然保持两列 */
+        @media (max-width: 550px) { /* 针对更小的手机屏幕，保持两列并更紧凑 */
             body {
                 padding-top: 45px; /* 调整body的padding-top */
             }
@@ -261,34 +261,76 @@
                 font-size: 0.8em;
             }
             h1 {
-                font-size: 1.8em;
+                font-size: 1.6em; /* 进一步缩小标题 */
                 margin-bottom: 15px;
             }
             #game-cards-container {
-                gap: 10px; /* 进一步缩小间距 */
+                gap: 8px; /* 进一步缩小间距 */
             }
             .game-card {
-                width: calc(50% - 10px); /* 保持两列，但卡片更小 */
-                max-width: 180px; /* 限制卡片宽度 */
-                padding: 10px; /* 缩小内边距 */
-                min-height: 180px; /* 调整最小高度 */
+                width: calc(50% - 8px); /* 保持两列，但卡片更小 */
+                max-width: 170px; /* 限制卡片宽度 */
+                padding: 8px; /* 缩小内边距 */
+                min-height: 170px; /* 调整最小高度 */
             }
             .game-card h2 {
-                font-size: 1.2em;
+                font-size: 1.1em;
                 margin-bottom: 5px;
             }
             .game-card .game-icon img {
-                width: 40px; /* 进一步缩小图标尺寸 */
-                height: 40px;
+                width: 36px; /* 进一步缩小图标尺寸 */
+                height: 36px;
                 margin-bottom: 8px;
             }
             .game-card p {
-                font-size: 0.75em; /* 进一步缩小描述字体 */
+                font-size: 0.7em; /* 进一步缩小描述字体 */
                 margin-bottom: 8px;
             }
             .game-card .play-button {
+                padding: 4px 8px;
+                font-size: 0.7em;
+            }
+        }
+
+        @media (max-width: 400px) { /* 针对非常小的手机屏幕，保持两列并极致紧凑 */
+            body {
+                padding-top: 40px; /* 调整body的padding-top */
+            }
+            .back-button {
+                top: 6px;
+                right: 6px;
                 padding: 5px 10px;
-                font-size: 0.75em;
+                font-size: 0.7em;
+            }
+            h1 {
+                font-size: 1.4em; /* 进一步缩小标题 */
+                margin-bottom: 10px;
+            }
+            #game-cards-container {
+                gap: 6px; /* 极致缩小间距 */
+            }
+            .game-card {
+                width: calc(50% - 6px); /* 保持两列，卡片更小 */
+                max-width: 150px; /* 限制卡片宽度 */
+                padding: 6px; /* 极致缩小内边距 */
+                min-height: 150px; /* 调整最小高度 */
+            }
+            .game-card h2 {
+                font-size: 1em;
+                margin-bottom: 4px;
+            }
+            .game-card .game-icon img {
+                width: 32px; /* 极致缩小图标尺寸 */
+                height: 32px;
+                margin-bottom: 6px;
+            }
+            .game-card p {
+                font-size: 0.65em; /* 极致缩小描述字体 */
+                margin-bottom: 6px;
+            }
+            .game-card .play-button {
+                padding: 3px 6px;
+                font-size: 0.65em;
             }
         }
     </style>
