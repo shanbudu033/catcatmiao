@@ -18,11 +18,9 @@
             color: #555; /* 柔和的文字颜色 */
             flex-direction: column;
             position: relative;
-            padding: 20px; /* 增加一些内边距 */
+            padding: 10px; /* 默认内边距 */
             box-sizing: border-box; /* 盒模型调整 */
-            /* 尝试强制不滚动。如果内容真的溢出，会被截断，但可以避免滚动条。
-               请注意，这可能导致部分内容在极小屏幕上不可见。 */
-            overflow: hidden; 
+            overflow: hidden; /* 阻止整个body滑动 */
         }
 
         /* 实时时钟的样式 */
@@ -44,14 +42,24 @@
             background-color: #ffffff; /* 白色容器背景 */
             border-radius: 25px; /* 更圆润的边角 */
             box-shadow: 0 15px 30px rgba(255, 192, 203, 0.3); /* 柔和的粉色阴影 */
-            padding: 30px;
+            padding: 20px; /* 默认内边距 */
             text-align: center;
             max-width: 450px; /* 稍微宽一点 */
             width: 90%;
-            margin-bottom: 20px;
+            margin-bottom: 0; /* 容器底部不再有外边距，由flex布局控制 */
             border: 2px solid #ffe4e1; /* 浅粉色边框 */
-            /* 移除 flex-shrink/grow，让内容决定其大小，但会受 max-width/width 限制 */
-            /* overflow-y: auto; /* 如果容器内容过多，允许容器内部滚动，而不是整个页面 */
+            
+            /* 新增：使container成为flex容器，垂直排列其子元素 */
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; /* 允许container占据body的剩余空间 */
+            overflow: hidden; /* 阻止container自身滑动，由内部scrollable-bottom-section处理 */
+        }
+
+        /* 顶部固定区域 */
+        .fixed-top-section {
+            flex-shrink: 0; /* 阻止此区域缩小 */
+            padding-bottom: 15px; /* 顶部固定区域和底部滑动区域之间的间距 */
         }
 
         h1 {
@@ -62,7 +70,7 @@
         }
 
         /* 猫咪名字显示和修改区域的容器 */
-        .container > div:nth-of-type(1) {
+        .cat-name-area {
             margin-bottom: 20px;
         }
 
@@ -71,12 +79,12 @@
             position: relative; /* 相对定位，用于子元素的绝对定位 */
             width: 250px; /* 固定宽度 */
             height: 250px; /* 固定高度 */
-            margin: 0 auto 25px;
+            margin: 0 auto 25px; /* 底部外边距 */
             border-radius: 15px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
             border: 5px solid #ffe4e1;
             overflow: hidden; /* 隐藏超出容器的部分 */
-            flex-shrink: 0; /* 不允许缩小 */
+            flex-shrink: 0; /* 阻止此元素缩小 */
         }
 
         #baseCatImage {
@@ -100,6 +108,14 @@
             pointer-events: none; /* 确保点击穿透到下层元素 */
         }
 
+        /* 底部可滑动区域 */
+        .scrollable-bottom-section {
+            flex-grow: 1; /* 占据所有剩余垂直空间 */
+            overflow-y: auto; /* 允许此区域内部滑动 */
+            -webkit-overflow-scrolling: touch; /* 改善iOS上的滑动体验 */
+            padding-top: 15px; /* 顶部固定区域和底部滑动区域之间的间距 */
+            padding-bottom: 10px; /* 底部留一些空间 */
+        }
 
         .stats {
             margin-bottom: 25px;
@@ -409,21 +425,27 @@
         /* 响应式调整 */
         @media (max-width: 600px) {
             body {
-                padding: 10px; /* 减小body内边距 */
+                padding: 5px; /* 减小body内边距 */
             }
             .container {
-                padding: 15px; /* 减小容器内边距 */
+                padding: 10px; /* 减小容器内边距 */
                 border-radius: 15px;
-                margin-bottom: 10px; /* 减小容器底部外边距 */
+            }
+            .fixed-top-section {
+                padding-bottom: 10px; /* 调整间距 */
+            }
+            .scrollable-bottom-section {
+                padding-top: 10px; /* 调整间距 */
+                padding-bottom: 5px;
             }
             h1 {
                 font-size: 1.8em; /* 缩小标题 */
                 margin-bottom: 10px; /* 减小标题底部外边距 */
             }
-            .container > div:nth-of-type(1) { /* 猫咪名字显示区域 */
+            .cat-name-area { /* 猫咪名字显示区域 */
                 margin-bottom: 10px !important; /* 减小底部外边距 */
             }
-            #catNameDisplay, .container > div:nth-of-type(1) span:first-child {
+            #catNameDisplay, .cat-name-area span:first-child {
                 font-size: 1.2em !important; /* 调整字体大小 */
             }
             #changeNameBtn {
@@ -432,10 +454,10 @@
                 margin-left: 5px;
             }
 
-            /* 猫咪图片容器保持固定大小，但其外边距可以调整 */
+            /* 猫咪图片容器在小屏幕上进一步缩小固定大小 */
             #catImageContainer {
-                width: 200px; /* 在小屏幕上进一步缩小固定图片大小 */
-                height: 200px; /* 在小屏幕上进一步缩小固定图片大小 */
+                width: 200px; 
+                height: 200px; 
                 margin-bottom: 10px; /* 减小图片容器底部外边距 */
             }
             .stats {
@@ -495,20 +517,26 @@
         /* 针对非常短的屏幕（例如横屏手机或小平板）进一步优化 */
         @media (max-height: 650px) and (max-width: 900px) {
             body {
-                padding: 5px; /* 进一步减小body内边距 */
+                padding: 3px; /* 进一步减小body内边距 */
             }
             .container {
-                padding: 10px; /* 进一步减小容器内边距 */
-                margin-bottom: 3px;
+                padding: 8px; /* 进一步减小容器内边距 */
+            }
+            .fixed-top-section {
+                padding-bottom: 8px;
+            }
+            .scrollable-bottom-section {
+                padding-top: 8px;
+                padding-bottom: 3px;
             }
             h1 {
                 font-size: 1.6em;
                 margin-bottom: 8px;
             }
-            .container > div:nth-of-type(1) { /* 猫咪名字显示区域 */
+            .cat-name-area { /* 猫咪名字显示区域 */
                 margin-bottom: 8px !important;
             }
-            #catNameDisplay, .container > div:nth-of-type(1) span:first-child {
+            #catNameDisplay, .cat-name-area span:first-child {
                 font-size: 1.1em !important;
             }
             #changeNameBtn {
@@ -516,10 +544,10 @@
                 font-size: 0.7em;
                 margin-left: 4px;
             }
-            /* 猫咪图片容器保持固定大小，但其外边距可以调整 */
+            /* 猫咪图片容器在非常短的屏幕上再次缩小固定大小 */
             #catImageContainer {
-                width: 180px; /* 再次缩小固定图片大小 */
-                height: 180px; /* 再次缩小固定图片大小 */
+                width: 180px; 
+                height: 180px; 
                 margin-bottom: 8px;
             }
             .stats {
@@ -600,57 +628,63 @@
     <div id="realTimeClock"></div>
 
     <div class="container">
-        <h1 id="gameTitle">我的云养猫</h1>
-        <!-- 猫咪名字显示和修改区域 -->
-        <div style="margin-bottom: 20px;">
-            <span style="font-size: 1.5em; font-weight: bold; color: #6c757d;">名字: </span>
-            <span id="catNameDisplay" style="font-size: 1.5em; font-weight: bold; color: #ff69b4;">猫咪</span>
-            <button id="changeNameBtn">修改名字</button>
+        <!-- 顶部固定区域 -->
+        <div class="fixed-top-section">
+            <h1 id="gameTitle">我的云养猫</h1>
+            <!-- 猫咪名字显示和修改区域 -->
+            <div class="cat-name-area">
+                <span style="font-size: 1.5em; font-weight: bold; color: #6c757d;">名字: </span>
+                <span id="catNameDisplay" style="font-size: 1.5em; font-weight: bold; color: #ff69b4;">猫咪</span>
+                <button id="changeNameBtn">修改名字</button>
+            </div>
+
+            <!-- 猫咪图片容器，用于叠加时装 -->
+            <div id="catImageContainer">
+                <!-- **重要：部署到国内平台时，请确保将所有图片链接替换为本地路径，例如 'images/catbenti.png'** -->
+                <img id="baseCatImage" src="images/catbenti.png" alt="可爱的猫咪" />
+                <!-- 装备的时装图片将动态添加到这里 -->
+            </div>
         </div>
 
-        <!-- 猫咪图片容器，用于叠加时装 -->
-        <div id="catImageContainer">
-            <!-- **重要：部署到国内平台时，请确保将所有图片链接替换为本地路径，例如 'images/catbenti.png'** -->
-            <img id="baseCatImage" src="images/catbenti.png" alt="可爱的猫咪" />
-            <!-- 装备的时装图片将动态添加到这里 -->
-        </div>
+        <!-- 底部可滑动区域 -->
+        <div class="scrollable-bottom-section">
+            <div class="stats">
+                <p><strong>饥饿度:</strong> <span id="hunger">50</span></p>
+                <p><strong>幸福度:</strong> <span id="happiness">50</span></p>
+                <p><strong>生命值:</strong> <span id="life">100</span></p>
+                <p><strong>清洁度:</strong> <span id="cleanliness">100</span></p>
+                <p><strong>精力:</strong> <span id="energy">100</span></p>
+                <!-- 新增：金币显示区域 -->
+                <p><strong>金币:</strong> <span id="gold">0</span></p>
+                <!-- /新增 -->
+                <p id="lastViewedTimeDisplay">
+                    上次查看: <span id="lastViewedExactTime">首次访问</span><br>
+                    <span id="timeSinceLastViewed"></span>
+                </p>
+            </div>
 
-        <div class="stats">
-            <p><strong>饥饿度:</strong> <span id="hunger">50</span></p>
-            <p><strong>幸福度:</strong> <span id="happiness">50</span></p>
-            <p><strong>生命值:</strong> <span id="life">100</span></p>
-            <p><strong>清洁度:</strong> <span id="cleanliness">100</span></p>
-            <p><strong>精力:</strong> <span id="energy">100</span></p>
-            <!-- 新增：金币显示区域 -->
-            <p><strong>金币:</strong> <span id="gold">0</span></p>
+            <div class="actions">
+                <button id="feedBtn">喂食</button>
+                <button id="playBtn">玩耍</button>
+                <button id="petBtn">抚摸</button>
+                <button id="cleanBtn">清洁</button>
+                <button id="restBtn">休息</button>
+                <!-- 新增：商店、小游戏和背包按钮 -->
+                <button id="shopBtn">商店</button>
+                <button id="gameBtn">小游戏</button>
+                <button id="backpackBtn">背包</button>
+                <!-- /新增 -->
+            </div>
+
+            <p id="message"></p>
+
+            <!-- 新增：游戏结束后的操作按钮 -->
+            <div id="gameOverActions" style="margin-top: 20px; display: none;">
+                <button id="reAdoptBtn">重新领养</button>
+                <button id="reviveBtn">复活 (100金币)</button>
+            </div>
             <!-- /新增 -->
-            <p id="lastViewedTimeDisplay">
-                上次查看: <span id="lastViewedExactTime">首次访问</span><br>
-                <span id="timeSinceLastViewed"></span>
-            </p>
         </div>
-
-        <div class="actions">
-            <button id="feedBtn">喂食</button>
-            <button id="playBtn">玩耍</button>
-            <button id="petBtn">抚摸</button>
-            <button id="cleanBtn">清洁</button>
-            <button id="restBtn">休息</button>
-            <!-- 新增：商店、小游戏和背包按钮 -->
-            <button id="shopBtn">商店</button>
-            <button id="gameBtn">小游戏</button>
-            <button id="backpackBtn">背包</button>
-            <!-- /新增 -->
-        </div>
-
-        <p id="message"></p>
-
-        <!-- 新增：游戏结束后的操作按钮 -->
-        <div id="gameOverActions" style="margin-top: 20px; display: none;">
-            <button id="reAdoptBtn">重新领养</button>
-            <button id="reviveBtn">复活 (100金币)</button>
-        </div>
-        <!-- /新增 -->
     </div>
 
     <!-- 背包模态框 -->
