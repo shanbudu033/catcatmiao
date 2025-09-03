@@ -20,7 +20,6 @@
             position: relative;
             padding: 10px; /* 默认内边距 */
             box-sizing: border-box; /* 盒模型调整 */
-            /* 修正：移除 body 上的 overflow: hidden; 允许子元素内部滚动 */
         }
 
         /* 实时时钟的样式 */
@@ -63,11 +62,9 @@
             margin-bottom: 0; /* 容器底部不再有外边距，由flex布局控制 */
             border: 2px solid #ffe4e1; /* 浅粉色边框 */
             
-            /* 新增：使container成为flex容器，垂直排列其子元素 */
             display: flex;
             flex-direction: column;
             flex-grow: 1; /* 允许container占据body的剩余空间 */
-            /* 修正：移除 container 上的 overflow: hidden; 允许其内部的 scrollable-bottom-section 滚动 */
         }
 
         /* 顶部固定区域 */
@@ -129,7 +126,31 @@
             -webkit-overflow-scrolling: touch; /* 改善iOS上的滑动体验 */
             padding-top: 15px; /* 顶部固定区域和底部滑动区域之间的间距 */
             padding-bottom: 10px; /* 底部留一些空间 */
+            /* 新增：自定义滚动条样式 */
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: #ffb6c1 #fdf3f8; /* Firefox thumb and track color */
         }
+
+        /* Webkit 浏览器（Chrome, Safari, Edge, Opera）的滚动条样式 */
+        .scrollable-bottom-section::-webkit-scrollbar {
+            width: 8px; /* 滚动条宽度 */
+        }
+
+        .scrollable-bottom-section::-webkit-scrollbar-track {
+            background: #fdf3f8; /* 滚动条轨道背景色 */
+            border-radius: 10px;
+        }
+
+        .scrollable-bottom-section::-webkit-scrollbar-thumb {
+            background-color: #ffb6c1; /* 滚动条滑块颜色 */
+            border-radius: 10px;
+            border: 2px solid #fdf3f8; /* 滑块边框，与轨道背景色一致 */
+        }
+
+        .scrollable-bottom-section::-webkit-scrollbar-thumb:hover {
+            background-color: #ff69b4; /* 滑块悬停颜色 */
+        }
+
 
         .stats {
             margin-bottom: 25px;
@@ -194,6 +215,30 @@
         .actions button:active:not(:disabled) { transform: translateY(0); box-shadow: 0 4px 10px rgba(106, 90, 205, 0.3); }
         .actions button:disabled { background-color: #cccccc; cursor: not-allowed; box-shadow: none; opacity: 0.7; }
 
+        /* 移除 #backpackBtn 的独立样式，使其继承 .actions button */
+        /* #backpackBtn {
+            background-color: #ffc0cb;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin: 8px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1.05em;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 15px rgba(255, 192, 203, 0.3);
+        }
+        #backpackBtn:hover:not(:disabled) {
+            background-color: #ff69b4;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 105, 180, 0.4);
+        }
+        #backpackBtn:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3);
+        } */
+
+
         #message { margin-top: 20px; font-size: 1.1em; color: #ff69b4; min-height: 25px; font-weight: bold; } /* 可爱的粉色消息 */
         .warning { color: #ff4500 !important; font-weight: bold; } /* 橙红色警告 */
         .game-over-message { color: #dc143c; font-weight: bold; font-size: 1.3em; margin-top: 20px; } /* 深红色游戏结束消息 */
@@ -256,29 +301,6 @@
             color: #666;
         }
 
-        /* 背包按钮 */
-        #backpackBtn {
-            background-color: #ffc0cb; /* 粉色 */
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            margin: 8px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 1.05em;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            box-shadow: 0 6px 15px rgba(255, 192, 203, 0.3);
-        }
-        #backpackBtn:hover:not(:disabled) {
-            background-color: #ff69b4;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(255, 105, 180, 0.4);
-        }
-        #backpackBtn:active:not(:disabled) {
-            transform: translateY(0);
-            box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3);
-        }
-
         /* 背包模态框 */
         .modal {
             display: none; /* Hidden by default */
@@ -309,7 +331,31 @@
             text-align: left; /* Align content to left */
             max-height: 90vh; /* 限制模态框内容的最大高度 */
             overflow-y: auto; /* 允许模态框内容自身滚动 */
+            /* 新增：自定义滚动条样式 */
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: #ffb6c1 #fdf3f8; /* Firefox thumb and track color */
         }
+
+        /* Webkit 浏览器（Chrome, Safari, Edge, Opera）的模态框滚动条样式 */
+        .modal-content::-webkit-scrollbar {
+            width: 8px; /* 滚动条宽度 */
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #fdf3f8; /* 滚动条轨道背景色 */
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background-color: #ffb6c1; /* 滚动条滑块颜色 */
+            border-radius: 10px;
+            border: 2px solid #fdf3f8; /* 滑块边框，与轨道背景色一致 */
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background-color: #ff69b4; /* 滑块悬停颜色 */
+        }
+
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-20px); }
@@ -532,6 +578,7 @@
                 padding: 6px 8px; /* 减小统计项内边距 */
                 font-size: 0.9em; /* 调整统计项字体大小 */
             }
+            /* 统一所有 .actions 按钮的样式 */
             .actions button, #gameOverActions button {
                 width: calc(50% - 10px); /* 小屏幕上按钮两列显示，减小间距 */
                 font-size: 0.9em;
@@ -637,6 +684,7 @@
                 margin-top: 5px;
                 font-size: 0.75em;
             }
+            /* 统一所有 .actions 按钮的样式 */
             .actions button, #gameOverActions button {
                 padding: 6px 10px;
                 font-size: 0.8em;
