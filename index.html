@@ -20,7 +20,8 @@
             position: relative;
             padding: 10px; /* 默认内边距 */
             box-sizing: border-box; /* 盒模型调整 */
-            overflow: hidden; /* 阻止整个body滑动 */
+            /* 修正：移除 body 上的 overflow: hidden; 允许子元素内部滚动 */
+            /* overflow: hidden; */ 
         }
 
         /* 实时时钟的样式 */
@@ -53,7 +54,8 @@
             display: flex;
             flex-direction: column;
             flex-grow: 1; /* 允许container占据body的剩余空间 */
-            overflow: hidden; /* 阻止container自身滑动，由内部scrollable-bottom-section处理 */
+            /* 修正：移除 container 上的 overflow: hidden; 允许其内部的 scrollable-bottom-section 滚动 */
+            /* overflow: hidden; */
         }
 
         /* 顶部固定区域 */
