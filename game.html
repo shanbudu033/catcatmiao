@@ -5,26 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>小游戏中心</title>
     <style>
+        /* 字体定义 */
+        @font-face {
+            font-family: 'Miaowu80';
+            src: url('fonts/miaowu80.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         /* 继承主页面的可爱风格 */
         body {
-            font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Miaowu80', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* 统一使用 Miaowu80 字体 */
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start; /* 内容从顶部开始排列 */
             align-items: center;
             min-height: 100vh;
             margin: 0;
             background-color: #fdf3f8; /* 柔和的粉色背景 */
             background-image: url('https://www.transparenttextures.com/patterns/light-honeycomb.png');
             color: #555;
-            padding: 20px;
+            padding: 10px; /* 调整body的默认padding */
             box-sizing: border-box;
+            overflow-y: auto; /* 允许body垂直滚动 */
+            -webkit-overflow-scrolling: touch; /* 改善iOS上的滑动体验 */
+            scrollbar-width: thin; /* Firefox 滚动条 */
+            scrollbar-color: #ffb6c1 #fdf3f8; /* Firefox 滚动条颜色 */
         }
+
+        /* Webkit 浏览器（Chrome, Safari, Edge, Opera）的滚动条样式 */
+        body::-webkit-scrollbar {
+            width: 8px; /* 滚动条宽度 */
+        }
+
+        body::-webkit-scrollbar-track {
+            background: #fdf3f8; /* 滚动条轨道背景色 */
+            border-radius: 10px;
+        }
+
+        body::-webkit-scrollbar-thumb {
+            background-color: #ffb6c1; /* 滚动条滑块颜色 */
+            border-radius: 10px;
+            border: 2px solid #fdf3f8; /* 滑块边框，与轨道背景色一致 */
+        }
+
+        body::-webkit-scrollbar-thumb:hover {
+            background-color: #ff69b4; /* 滑块悬停颜色 */
+        }
+
         h1 {
             color: #ff69b4; /* 可爱的热粉色标题 */
+            margin-top: 20px; /* 顶部留白 */
             margin-bottom: 30px;
             font-size: 2.8em;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0; /* 防止标题在滚动时缩小 */
         }
         /* 返回主页按钮的样式 */
         .back-button {
@@ -38,6 +73,8 @@
             transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
             box-shadow: 0 6px 15px rgba(152, 251, 152, 0.3);
             margin-top: 40px; /* 与游戏区域保持距离 */
+            margin-bottom: 20px; /* 底部留白，确保滚动条能看到按钮 */
+            flex-shrink: 0; /* 防止按钮在滚动时缩小 */
         }
         .back-button:hover {
             background-color: #66cd66;
@@ -54,9 +91,10 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 30px; /* 卡片之间的间距 */
+            gap: 20px; /* 调整卡片之间的间距，更紧凑 */
             max-width: 900px; /* 限制容器宽度 */
             width: 100%;
+            flex-grow: 1; /* 允许容器占据可用空间 */
         }
 
         /* 游戏卡片样式 */
@@ -64,10 +102,10 @@
             background-color: #ffffff;
             border-radius: 20px;
             box-shadow: 0 10px 25px rgba(255, 192, 203, 0.3);
-            padding: 25px;
+            padding: 20px; /* 调整内边距 */
             text-align: center;
-            width: 250px; /* 卡片固定宽度 */
-            min-height: 280px; /* 最小高度，确保占位卡片也一致 */
+            width: 220px; /* 缩小卡片宽度 */
+            min-height: 260px; /* 调整最小高度 */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -83,21 +121,26 @@
 
         .game-card h2 {
             color: #8a2be2; /* 蓝紫色标题 */
-            font-size: 1.8em;
+            font-size: 1.6em; /* 缩小字体大小 */
             margin-top: 0;
-            margin-bottom: 15px;
+            margin-bottom: 10px; /* 缩小外边距 */
         }
 
-        .game-card .game-icon {
-            font-size: 4em; /* 图标大小 */
+        /* 游戏图标图片样式 */
+        .game-card .game-icon img {
+            width: 64px; /* 保持图标视觉大小不变 */
+            height: 64px;
+            object-fit: contain; /* 确保图片完整显示 */
             margin-bottom: 15px;
-            line-height: 1; /* 确保图标垂直居中 */
+            border-radius: 8px; /* 图片圆角 */
+            background-color: #f0f0f0; /* 图标背景色 */
+            padding: 5px;
         }
 
         .game-card p {
-            font-size: 1.1em;
+            font-size: 1em; /* 缩小字体大小 */
             color: #777;
-            margin-bottom: 20px;
+            margin-bottom: 15px; /* 缩小外边距 */
             flex-grow: 1; /* 让描述占据剩余空间 */
         }
 
@@ -105,10 +148,10 @@
             background-color: #ffb6c1; /* 浅粉色按钮 */
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 18px; /* 缩小内边距 */
             border-radius: 12px;
             cursor: pointer;
-            font-size: 1.0em;
+            font-size: 0.95em; /* 缩小字体大小 */
             font-weight: bold;
             transition: background-color 0.3s ease, transform 0.2s ease;
             box-shadow: 0 4px 10px rgba(255, 182, 193, 0.3);
@@ -140,8 +183,9 @@
         .game-card.placeholder h2 {
             color: #a0a0a0;
         }
-        .game-card.placeholder .game-icon {
-            color: #d0d0d0;
+        .game-card.placeholder .game-icon img { /* 针对占位卡片中的图片 */
+            filter: grayscale(100%); /* 灰度效果 */
+            opacity: 0.6;
         }
         .game-card.placeholder p {
             color: #a0a0a0;
@@ -149,13 +193,97 @@
 
         /* 响应式调整 */
         @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2em;
+                margin-bottom: 20px;
+            }
             #game-cards-container {
-                flex-direction: column;
-                align-items: center;
+                gap: 15px; /* 进一步缩小间距 */
             }
             .game-card {
-                width: 80%; /* 小屏幕上卡片宽度更大 */
-                max-width: 300px;
+                width: calc(50% - 15px); /* 在中等屏幕上显示两列，减去gap */
+                max-width: 200px; /* 每张卡片的最大宽度 */
+                padding: 15px;
+                min-height: 220px;
+            }
+            .game-card h2 {
+                font-size: 1.4em;
+                margin-bottom: 8px;
+            }
+            .game-card .game-icon img {
+                width: 50px; /* 缩小图标尺寸 */
+                height: 50px;
+                margin-bottom: 10px;
+            }
+            .game-card p {
+                font-size: 0.9em;
+                margin-bottom: 10px;
+            }
+            .game-card .play-button {
+                padding: 7px 15px;
+                font-size: 0.9em;
+            }
+            .back-button {
+                padding: 10px 20px;
+                font-size: 1em;
+                margin-top: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 15px;
+            }
+            #game-cards-container {
+                flex-direction: column; /* 在小屏幕上显示为单列 */
+                align-items: center;
+                gap: 10px; /* 进一步缩小间距 */
+            }
+            .game-card {
+                width: 90%; /* 单列时卡片宽度更宽 */
+                max-width: 300px; /* 单列时卡片最大宽度 */
+                padding: 12px;
+                min-height: 180px; /* 调整单列时的最小高度 */
+                flex-direction: row; /* 单列时改为横向布局 */
+                justify-content: flex-start;
+                text-align: left;
+            }
+            .game-card h2 {
+                font-size: 1.2em;
+                margin: 0; /* 移除默认margin */
+            }
+            .game-card .game-icon {
+                flex-shrink: 0; /* 防止图标缩小 */
+                margin-right: 10px; /* 图标右侧间距 */
+                margin-bottom: 0; /* 移除底部间距 */
+            }
+            .game-card .game-icon img {
+                width: 40px; /* 进一步缩小图标尺寸 */
+                height: 40px;
+                margin-bottom: 0;
+            }
+            .game-card-content { /* 新增一个div来包裹文本内容，方便横向布局 */
+                display: flex;
+                flex-direction: column;
+                flex-grow: 1;
+                justify-content: center;
+            }
+            .game-card p {
+                font-size: 0.8em;
+                margin: 2px 0; /* 缩小外边距 */
+                flex-grow: 0; /* 不让描述占据额外空间 */
+            }
+            .game-card .play-button {
+                padding: 6px 12px;
+                font-size: 0.8em;
+                margin-left: 10px; /* 按钮左侧间距 */
+                flex-shrink: 0; /* 防止按钮缩小 */
+            }
+            .back-button {
+                padding: 8px 15px;
+                font-size: 0.9em;
+                margin-top: 20px;
             }
         }
     </style>
@@ -166,65 +294,81 @@
     <div id="game-cards-container">
         <!-- 扫雷游戏卡片 -->
         <div class="game-card" onclick="window.location.href='minesweeper.html'">
-            <div class="game-icon">💣</div>
-            <h2>扫雷</h2>
-            <p>经典益智游戏，挑战你的逻辑和运气！</p>
+            <div class="game-icon"><img src="images/minesweeper.png" alt="扫雷"></div>
+            <div class="game-card-content">
+                <h2>扫雷</h2>
+                <p>经典益智游戏，挑战你的逻辑和运气！</p>
+            </div>
             <button class="play-button">开始游戏</button>
         </div>
 
         <!-- 贪吃蛇游戏卡片 -->
         <div class="game-card" onclick="window.location.href='snake.html'">
-            <div class="game-icon">🐍</div>
-            <h2>贪吃蛇</h2>
-            <p>经典街机游戏，挑战你的反应速度和策略！</p>
+            <div class="game-icon"><img src="images/snake.png" alt="贪吃蛇"></div>
+            <div class="game-card-content">
+                <h2>贪吃蛇</h2>
+                <p>经典街机游戏，挑战你的反应速度和策略！</p>
+            </div>
             <button class="play-button">开始游戏</button>
         </div>
 
         <!-- Pong游戏卡片 -->
         <div class="game-card" onclick="window.location.href='pong.html'">
-            <div class="game-icon">🏓</div> <!-- 乒乓球拍图标 -->
-            <h2>Pong</h2>
-            <p>怀旧街机对战，与电脑一决高下！</p>
+            <div class="game-icon"><img src="images/pong.png" alt="Pong"></div>
+            <div class="game-card-content">
+                <h2>Pong</h2>
+                <p>怀旧街机对战，与电脑一决高下！</p>
+            </div>
             <button class="play-button">开始游戏</button>
         </div>
 
         <!-- 打砖块游戏卡片 -->
         <div class="game-card" onclick="window.location.href='breakout.html'">
-            <div class="game-icon">🧱</div> <!-- 砖块图标 -->
-            <h2>打砖块</h2>
-            <p>经典街机游戏，用球拍击碎所有砖块！</p>
+            <div class="game-icon"><img src="images/breakout.png" alt="打砖块"></div>
+            <div class="game-card-content">
+                <h2>打砖块</h2>
+                <p>经典街机游戏，用球拍击碎所有砖块！</p>
+            </div>
             <button class="play-button">开始游戏</button>
         </div>
 
         <!-- 打地鼠游戏卡片 -->
         <div class="game-card" onclick="window.location.href='whac-a-mole.html'">
-            <div class="game-icon">🔨</div> <!-- 锤子图标 -->
-            <h2>打地鼠</h2>
-            <p>眼疾手快，敲打冒出的地鼠，挑战高分！</p>
+            <div class="game-icon"><img src="images/whac-a-mole.png" alt="打地鼠"></div>
+            <div class="game-card-content">
+                <h2>打地鼠</h2>
+                <p>眼疾手快，敲打冒出的地鼠，挑战高分！</p>
+            </div>
             <button class="play-button">开始游戏</button>
         </div>
 
         <!-- 空中闪避游戏卡片 -->
         <div class="game-card" onclick="window.location.href='aerial-dodge.html'">
-            <div class="game-icon">✈️</div> <!-- 飞机图标 -->
-            <h2>空中闪避</h2>
-            <p>控制飞机躲避炮弹，挑战你的反应极限！</p>
+            <div class="game-icon"><img src="images/aerial-dodge.png" alt="空中闪避"></div>
+            <div class="game-card-content">
+                <h2>空中闪避</h2>
+                <p>控制飞机躲避炮弹，挑战你的反应极限！</p>
+            </div>
             <button class="play-button">开始游戏</button>
         </div>
 
         <!-- 五子棋游戏卡片 -->
         <div class="game-card" onclick="window.location.href='gomoku.html'">
-            <div class="game-icon">⚫⚪</div> <!-- 黑白棋子图标 -->
-            <h2>五子棋</h2>
-            <p>经典双人对弈，挑战你的策略思维！</p>
+            <div class="game-icon"><img src="images/gomoku.png" alt="五子棋"></div>
+            <div class="game-card-content">
+                <h2>五子棋</h2>
+                <p>经典双人对弈，挑战你的策略思维！</p>
+            </div>
             <button class="play-button">开始游戏</button>
         </div>
 
         <!-- 占位游戏卡片 1 -->
         <div class="game-card placeholder">
-            <div class="game-icon">❓</div>
-            <h2>敬请期待</h2>
-            <p>更多有趣的小游戏正在开发中...</p>
+            <div class="game-icon"><img src="images/placeholder.png" alt="敬请期待"></div> <!-- Placeholder image -->
+            <div class="game-card-content">
+                <h2>敬请期待</h2>
+                <p>更多有趣的小游戏正在开发中...</p>
+            </div>
             <button class="play-button" disabled>即将推出</button>
         </div>
 
@@ -232,6 +376,6 @@
 
     </div>
 
-    <button onclick="window.location.href='catmoon.html'" class="back-button">返回我的云养猫</button>
+    <button onclick="window.location.href='index.html'" class="back-button">返回我的云养猫</button>
 </body>
 </html>
