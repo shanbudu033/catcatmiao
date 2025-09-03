@@ -25,7 +25,8 @@
             background-color: #fdf3f8; /* 柔和的粉色背景 */
             background-image: url('https://www.transparenttextures.com/patterns/light-honeycomb.png');
             color: #555;
-            padding: 10px; /* 调整body的默认padding */
+            padding: 10px; /* 默认左右内边距 */
+            padding-top: 60px; /* 为顶部固定按钮留出空间 */
             box-sizing: border-box;
             overflow-y: auto; /* 允许body垂直滚动 */
             -webkit-overflow-scrolling: touch; /* 改善iOS上的滑动体验 */
@@ -55,14 +56,19 @@
 
         h1 {
             color: #ff69b4; /* 可爱的热粉色标题 */
-            margin-top: 20px; /* 顶部留白 */
+            margin-top: 0; /* body的padding-top已提供空间 */
             margin-bottom: 30px;
             font-size: 2.8em;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
             flex-shrink: 0; /* 防止标题在滚动时缩小 */
         }
-        /* 返回主页按钮的样式 */
+
+        /* 返回主页按钮的样式 - 固定在右上角 */
         .back-button {
+            position: fixed; /* 固定位置 */
+            top: 15px; /* 距离顶部15px */
+            right: 15px; /* 距离右侧15px */
+            z-index: 1000; /* 确保在最上层 */
             padding: 12px 25px;
             font-size: 1.1em;
             cursor: pointer;
@@ -72,9 +78,8 @@
             border-radius: 15px;
             transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
             box-shadow: 0 6px 15px rgba(152, 251, 152, 0.3);
-            margin-top: 40px; /* 与游戏区域保持距离 */
-            margin-bottom: 20px; /* 底部留白，确保滚动条能看到按钮 */
-            flex-shrink: 0; /* 防止按钮在滚动时缩小 */
+            /* 移除之前的margin，因为是fixed定位 */
+            margin: 0;
         }
         .back-button:hover {
             background-color: #66cd66;
@@ -89,12 +94,13 @@
         /* 游戏卡片容器 */
         #game-cards-container {
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: wrap; /* 允许卡片换行 */
             justify-content: center;
-            gap: 20px; /* 调整卡片之间的间距，更紧凑 */
+            gap: 20px; /* 卡片之间的间距 */
             max-width: 900px; /* 限制容器宽度 */
             width: 100%;
             flex-grow: 1; /* 允许容器占据可用空间 */
+            margin-bottom: 20px; /* 底部留白 */
         }
 
         /* 游戏卡片样式 */
@@ -107,7 +113,7 @@
             width: 220px; /* 缩小卡片宽度 */
             min-height: 260px; /* 调整最小高度 */
             display: flex;
-            flex-direction: column;
+            flex-direction: column; /* 内部元素垂直排列 */
             justify-content: space-between;
             align-items: center;
             border: 2px solid #ffe4e1;
@@ -127,21 +133,31 @@
         }
 
         /* 游戏图标图片样式 */
+        .game-card .game-icon {
+            margin-bottom: 15px;
+        }
         .game-card .game-icon img {
             width: 64px; /* 保持图标视觉大小不变 */
             height: 64px;
             object-fit: contain; /* 确保图片完整显示 */
-            margin-bottom: 15px;
             border-radius: 8px; /* 图片圆角 */
             background-color: #f0f0f0; /* 图标背景色 */
             padding: 5px;
+        }
+
+        /* 游戏卡片内容区域（包裹h2和p） */
+        .game-card-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* 文本居中 */
+            flex-grow: 1; /* 让内容占据剩余空间 */
         }
 
         .game-card p {
             font-size: 1em; /* 缩小字体大小 */
             color: #777;
             margin-bottom: 15px; /* 缩小外边距 */
-            flex-grow: 1; /* 让描述占据剩余空间 */
+            text-align: center; /* 文本居中 */
         }
 
         .game-card .play-button {
@@ -193,6 +209,15 @@
 
         /* 响应式调整 */
         @media (max-width: 768px) {
+            body {
+                padding-top: 50px; /* 调整body的padding-top */
+            }
+            .back-button {
+                top: 10px;
+                right: 10px;
+                padding: 8px 15px; /* 缩小按钮 */
+                font-size: 0.9em;
+            }
             h1 {
                 font-size: 2.2em;
                 margin-bottom: 20px;
@@ -202,7 +227,7 @@
             }
             .game-card {
                 width: calc(50% - 15px); /* 在中等屏幕上显示两列，减去gap */
-                max-width: 200px; /* 每张卡片的最大宽度 */
+                max-width: 250px; /* 每张卡片的最大宽度 */
                 padding: 15px;
                 min-height: 220px;
             }
@@ -223,72 +248,55 @@
                 padding: 7px 15px;
                 font-size: 0.9em;
             }
-            .back-button {
-                padding: 10px 20px;
-                font-size: 1em;
-                margin-top: 30px;
-            }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 550px) { /* 针对更小的手机屏幕，仍然保持两列 */
+            body {
+                padding-top: 45px; /* 调整body的padding-top */
+            }
+            .back-button {
+                top: 8px;
+                right: 8px;
+                padding: 6px 12px;
+                font-size: 0.8em;
+            }
             h1 {
                 font-size: 1.8em;
                 margin-bottom: 15px;
             }
             #game-cards-container {
-                flex-direction: column; /* 在小屏幕上显示为单列 */
-                align-items: center;
                 gap: 10px; /* 进一步缩小间距 */
             }
             .game-card {
-                width: 90%; /* 单列时卡片宽度更宽 */
-                max-width: 300px; /* 单列时卡片最大宽度 */
-                padding: 12px;
-                min-height: 180px; /* 调整单列时的最小高度 */
-                flex-direction: row; /* 单列时改为横向布局 */
-                justify-content: flex-start;
-                text-align: left;
+                width: calc(50% - 10px); /* 保持两列，但卡片更小 */
+                max-width: 180px; /* 限制卡片宽度 */
+                padding: 10px; /* 缩小内边距 */
+                min-height: 180px; /* 调整最小高度 */
             }
             .game-card h2 {
                 font-size: 1.2em;
-                margin: 0; /* 移除默认margin */
-            }
-            .game-card .game-icon {
-                flex-shrink: 0; /* 防止图标缩小 */
-                margin-right: 10px; /* 图标右侧间距 */
-                margin-bottom: 0; /* 移除底部间距 */
+                margin-bottom: 5px;
             }
             .game-card .game-icon img {
                 width: 40px; /* 进一步缩小图标尺寸 */
                 height: 40px;
-                margin-bottom: 0;
-            }
-            .game-card-content { /* 新增一个div来包裹文本内容，方便横向布局 */
-                display: flex;
-                flex-direction: column;
-                flex-grow: 1;
-                justify-content: center;
+                margin-bottom: 8px;
             }
             .game-card p {
-                font-size: 0.8em;
-                margin: 2px 0; /* 缩小外边距 */
-                flex-grow: 0; /* 不让描述占据额外空间 */
+                font-size: 0.75em; /* 进一步缩小描述字体 */
+                margin-bottom: 8px;
             }
             .game-card .play-button {
-                padding: 6px 12px;
-                font-size: 0.8em;
-                margin-left: 10px; /* 按钮左侧间距 */
-                flex-shrink: 0; /* 防止按钮缩小 */
-            }
-            .back-button {
-                padding: 8px 15px;
-                font-size: 0.9em;
-                margin-top: 20px;
+                padding: 5px 10px;
+                font-size: 0.75em;
             }
         }
     </style>
 </head>
 <body>
+    <!-- 返回主页按钮 -->
+    <button onclick="window.location.href='index.html'" class="back-button">返回我的云养猫</button>
+
     <h1>小游戏中心</h1>
 
     <div id="game-cards-container">
@@ -375,7 +383,5 @@
         <!-- 你可以根据需要添加更多占位卡片 -->
 
     </div>
-
-    <button onclick="window.location.href='index.html'" class="back-button">返回我的云养猫</button>
 </body>
 </html>
